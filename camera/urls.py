@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import get_camera_info
+from . import views
 
 urlpatterns = [
-    path('get-camera-info/', get_camera_info, name='get_camera_info'),
+    path("", views.camera_control, name="camera_control"),
+    path("discover/", views.discover_camera, name="discover_camera"),
+    path("api-call/", views.api_call, name="api_call"),
 ]

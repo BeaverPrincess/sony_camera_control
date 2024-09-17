@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sony Camera Control</title>
+</head>
+<body>
+    <h1>Control your Sony Camera</h1>
+
+    <!-- Button to Discover Camera -->
+    <form method="GET" action="{% url 'discover_camera' %}">
+        <button type="submit">Discover Camera</button>
+    </form>
+
+    <!-- Button to Make API Call -->
+    <form method="GET" action="{% url 'api_call' %}">
+        <button type="submit">Make API Call</button>
+    </form>
+</body>
+</html>

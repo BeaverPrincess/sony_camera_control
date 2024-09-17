@@ -17,5 +17,9 @@
     <form method="GET" action="{% url 'api_call' %}">
         <button type="submit">Make API Call</button>
     </form>
+
+    {% if alert %}
+        <h1>{{ alert }}</h1>
+    {% endif %}
 </body>
 </html>

@@ -1,10 +1,17 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import socket
+import requests
+from django.http import HttpResponse
+from django.shortcuts import render
 
 
-# SSDP M-SEARCH to discover the camera
-def discover_camera(request):
+def camera_control(request):
+    return render(request, "camera_control.html")
+
+
+def fetch_device_description(request):
+    # SSDP M-SEARCH request to discover the camera
     M_SEARCH = (
         b"M-SEARCH * HTTP/1.1\r\n"
         b"HOST: 239.255.255.250:1900\r\n"
@@ -22,28 +29,46 @@ def discover_camera(request):
     try:
         # Receive the camera's response
         data, addr = sock.recvfrom(1024)
-        return JsonResponse({"status": "success", "data": data.decode("utf-8")})
+        response_str = data.decode("utf-8")
+        location_url = None
+
+        # Parse the response to get the LOCATION header
+        for line in response_str.splitlines():
+            if line.startswith("LOCATION"):
+                location_url = line.split(" ", 1)[1]
+                break
+
+        if not location_url:
+            return render(
+                request,
+                "camera_control.html",
+                {"alert": "Device description fetching failed."},
+            )
+
+        # Fetch the device description from the LOCATION URL
+        response = requests.get(location_url)
+        if response.status_code == 200:
+            xml_content = response.content
+            return render(
+                request, "camera_control.html", {"alert": xml_content.decode("utf-8")}
+            )
+        else:
+            return render(
+                request,
+                "camera_control.html",
+                {"alert": "Error: Failed to fetch device description."},
+            )
+
     except socket.timeout:
-        return JsonResponse(
-            {"status": "error", "message": "No response received from the camera"}
+        return render(
+            request,
+            "camera_control.html",
+            {"alert": "Error: Failed to fetch device description."},
         )
-
-
-# Function to handle a basic API call
-def api_call(request):
-    # For now, let's mock this call
-    # You'd use something like requests.post to call the real API endpoint discovered in SSDP
-    camera_api_url = (
-        "http://192.168.122.1:8080/sony/system"  # Example URL after discovery
-    )
-
-    # Simulating a simple API call (e.g., getting the API version)
-    # In a real-world scenario, you'd use requests.post() here.
-    api_response = {"result": ["1.0"], "id": 1}
-
-    return JsonResponse({"status": "success", "data": api_response})
-
-
-# View for displaying buttons
-def camera_control(request):
-    return render(request, "camera_control.html")
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return render(
+            request,
+            "camera_control.html",
+            {"alert": f"Error: Failed to fetch device description.\n{str(e)}"},
+        )

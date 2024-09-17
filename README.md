@@ -4,7 +4,7 @@
 
     ```bash
     git clone https://github.com/BeaverPrincess/sony_camera_control.git
-    cd repository
+    cd sony_camera_control
     ```
 
 2. **Create and activate a virtual environment:**

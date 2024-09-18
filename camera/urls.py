@@ -1,11 +1,11 @@
 from django.urls import path
-from . import views
+from .views import CameraControlView, FetchDeviceDescriptionView
 
 urlpatterns = [
-    path("", views.camera_control, name="camera_control"),
+    path("", CameraControlView.as_view(), name="camera_control"),
     path(
         "fetch-device-description/",
-        views.fetch_device_description,
+        FetchDeviceDescriptionView.as_view(),
         name="fetch_device_description",
     ),
 ]

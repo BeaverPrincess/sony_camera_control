@@ -8,14 +8,8 @@
 <body>
     <h1>Control your Sony Camera</h1>
 
-    <!-- Button to Discover Camera -->
-    <form method="GET" action="{% url 'discover_camera' %}">
+    <form method="GET" action="{% url 'fetch_device_description' %}">
         <button type="submit">Discover Camera</button>
-    </form>
-
-    <!-- Button to Make API Call -->
-    <form method="GET" action="{% url 'api_call' %}">
-        <button type="submit">Make API Call</button>
     </form>
 
     {% if alert %}

@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 from .models import CameraInfo, CameraService
 
 
+
 class CameraControlView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         return render(request, "camera_control.html")

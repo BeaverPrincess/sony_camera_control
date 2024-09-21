@@ -15,5 +15,9 @@
     {% if alert %}
         <h1>{{ alert }}</h1>
     {% endif %}
+
+    <form method="GET" action="{% url 'get_available_api_list' %}">
+        <button type="submit">Get Available API List</button>
+    </form>
 </body>
 </html>

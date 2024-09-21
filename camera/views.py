@@ -9,7 +9,8 @@ from django.views import View
 from typing import Optional
 import xml.etree.ElementTree as ET
 from .models import CameraInfo, CameraService
-
+import time
+import logging
 
 
 class CameraControlView(View):
@@ -20,7 +21,7 @@ class CameraControlView(View):
 class FetchDeviceDescriptionView(View):
     def _retrieve_location_url(self) -> tuple[Optional[str], Optional[str]]:
         """
-        Get location url using SSDP M-Search.
+        Get location URL using SSDP M-Search.
         """
         # SSDP M-SEARCH request to discover the camera
         M_SEARCH = (
@@ -32,31 +33,61 @@ class FetchDeviceDescriptionView(View):
             b"USER-AGENT: Django/5.0 Python/3.x\r\n\r\n"
         )
 
-        # Create a socket for the SSDP M-SEARCH
+        # Create socket for sending and receiving UDP packets over IPv4, necessary for SSDP
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        sock.settimeout(5)
-        sock.sendto(M_SEARCH, ("239.255.255.250", 1900))
 
+        # Allow socket to reuse the address and set socket options
+        sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_REUSEADDR, 1
+        )  # Allows multiple sockets to bind to the same address and port -> in case OS hasnt closed the socket zb. from previous run
+        sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_BROADCAST, 1
+        )  # Extend to Broadcast
+        sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVBUF, 4096
+        )  # Incease buffer size
+
+        # Best to bind device IP directly ensures SSDP sends request through correct inteface
+        local_ip = "192.168.122.177"
+        sock.bind((local_ip, 0))
+
+        # Send M-SEARCH requests multiple times to increase probability that camera reponses
+        for i in range(5):
+            sock.sendto(M_SEARCH, ("239.255.255.250", 1900))
+            time.sleep(1)
+
+        location_url = None
+        start_time = time.time()
+        timeout = 8  # Total timeout in seconds
+        # Set a dynamic socket timeout to ensure that waiting for a response only takes exactly that long
         try:
-            # Receive the camera's response
-            data, addr = sock.recvfrom(1024)
-            response_str = data.decode("utf-8")
-            location_url = None
-
-            # Parse the response to get the location_url
-            for line in response_str.splitlines():
-                if line.startswith("LOCATION"):
-                    location_url = line.split(" ", 1)[1]
+            while True:
+                # Calculate remaining time
+                elapsed = time.time() - start_time
+                remaining = timeout - elapsed
+                if remaining <= 0:
                     break
-
-            if not location_url:
-                return None, "Location url not found in response."
-            return location_url, None
-
-        except socket.timeout:
-            return None, "Error: Failed to fetch location url (Timeout)."
+                sock.settimeout(remaining)
+                try:
+                    data, addr = sock.recvfrom(1024)
+                    response_str = data.decode("utf-8")
+                    # Parse the response to get the LOCATION URL
+                    for line in response_str.splitlines():
+                        if line.startswith("LOCATION"):
+                            location_url = line.split(" ", 1)[1]
+                            break
+                    if location_url:
+                        break  # Exit loop if LOCATION URL is found
+                except socket.timeout:
+                    continue  # No data received, continue waiting
         except Exception as e:
-            return None, f"Error: Failed to fetch location url.\n{str(e)}"
+            return None, f"Error: Failed to fetch location URL.\n{str(e)}"
+        finally:
+            sock.close()
+
+        if not location_url:
+            return None, "Error: Location URL not found in SSDP response."
+        return location_url, None
 
     def _get_namespace(self, element) -> str:
         """
@@ -145,7 +176,12 @@ class FetchDeviceDescriptionView(View):
         """
         location_url, error = self._retrieve_location_url()
         if error:
-            return render(request, "camera_control.html", {"alert": error})
+            logging.error(error)
+            return render(
+                request,
+                "camera_control.html",
+                {"alert": "Fetching location URL failed."},
+            )
 
         try:
             response = requests.get(location_url)
@@ -177,9 +213,9 @@ class FetchDeviceDescriptionView(View):
                 )
 
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"Error: {str(e)}")
             return render(
                 request,
                 "camera_control.html",
-                {"alert": f"Error: Failed to fetch device description.\n{str(e)}"},
+                {"alert": f"Error: Failed to fetch device description."},
             )

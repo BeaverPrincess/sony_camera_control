@@ -2,35 +2,47 @@ from django.db import models
 
 
 class CameraInfo(models.Model):
-    friendly_name = models.CharField(max_length=255, help_text="Camera model.")
+    """
+    Model for connected cameras.
+    """
+
+    model = models.ForeignKey("CameraModel", on_delete=models.SET_NULL, null=True)
     uuid = models.CharField(
         max_length=255,
         unique=True,
-        help_text="Unique identifier of the camera.",
     )
-    model = models.CharField(max_length=255, help_text="Device line.")
     action_list_url = models.URLField(help_text="URL endpoint for API calls.")
 
-    def __str__(self) -> str:
-        return f"{self.friendly_name} ({self.model})"
+
+class CameraModel(models.Model):
+    """
+    Model for supported camera models.
+    """
+
+    model = models.CharField(max_length=100, unique=True)
+    api_groups = models.ManyToManyField("APIGroup", related_name="camera_models")
+
+    def __str__(self):
+        return self.model
 
 
-class CameraService(models.Model):
-    camera_info = models.ForeignKey(
-        CameraInfo,
-        on_delete=models.CASCADE,
-        related_name="services",
-        help_text="The camera to which the services belong.",
+class APIGroup(models.Model):
+    """
+    Model for supported camera API groups.
+    """
+
+    group_name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.group_name
+
+
+class API(models.Model):
+    api_name = models.CharField(max_length=100)
+    group_name = models.ForeignKey(
+        "APIGroup", on_delete=models.CASCADE, related_name="apis"
     )
-    service_types = models.TextField(help_text="List of service types.")
-
-    def set_service_types(self, service_list: list[str]) -> None:
-        """Converts a list of services into a comma-separated string for storage."""
-        self.service_types = ",".join(service_list)
-
-    def get_service_types(self) -> list[str]:
-        """Returns the list of services."""
-        return self.service_types.split(",")
-
-    def __str__(self) -> str:
-        return f"Services for {self.camera_info.friendly_name}: {self.service_types}"
+    description = models.TextField(blank=True, null=True)
+    json_params = models.JSONField(blank=True, null=True)
+    service_endpoint = models.CharField(max_length=255)

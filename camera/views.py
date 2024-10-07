@@ -8,9 +8,10 @@ from django.conf import settings
 from django.views import View
 from typing import Optional
 import xml.etree.ElementTree as ET
-from .models import CameraInfo, CameraService
+from .models import CameraInfo
 import time
 import logging
+from .models import CameraModel
 
 
 class CameraControlView(View):
@@ -38,9 +39,8 @@ class FetchDeviceDescriptionView(View):
             namespace = self._get_namespace(root)
 
             # Extract device infos
-            friendly_name = root.find(f".//{namespace}friendlyName").text
+            model = root.find(f".//{namespace}friendlyName").text
             uuid = root.find(f".//{namespace}UDN").text
-            model = root.find(f".//{namespace}modelName").text
 
             # Extract ScalarWebAPI namespace for specific elements
             scalar_namespace = {"av": "urn:schemas-sony-com:av"}
@@ -48,22 +48,10 @@ class FetchDeviceDescriptionView(View):
                 ".//av:X_ScalarWebAPI_ActionList_URL", namespaces=scalar_namespace
             ).text
 
-            # Extract service types
-            service_types = [
-                service.find(
-                    "av:X_ScalarWebAPI_ServiceType", namespaces=scalar_namespace
-                ).text
-                for service in root.findall(
-                    ".//av:X_ScalarWebAPI_Service", namespaces=scalar_namespace
-                )
-            ]
-
             return {
-                "friendly_name": friendly_name,
-                "uuid": uuid,
                 "model": model,
+                "uuid": uuid,
                 "action_list_url": action_list_url,
-                "service_types": service_types,
             }, None
 
         except ET.ParseError:
@@ -79,18 +67,21 @@ class FetchDeviceDescriptionView(View):
         Save camera info and services to the database.
         """
         try:
-            camera_info, _ = CameraInfo.objects.update_or_create(
+            try:
+                camera_model = CameraModel.objects.get(model=camera_data["model"])
+            except CameraModel.DoesNotExist:
+                return (
+                    False,
+                    f"Error: Camera model '{camera_data['model']}' not found in the database.",
+                )
+
+            CameraInfo.objects.update_or_create(
                 uuid=camera_data["uuid"],
                 defaults={
-                    "friendly_name": camera_data["friendly_name"],
-                    "model": camera_data["model"],
+                    "model": camera_model,
+                    "uuid": camera_data["uuid"],
                     "action_list_url": camera_data["action_list_url"],
                 },
-            )
-
-            CameraService.objects.update_or_create(
-                camera_info=camera_info,
-                defaults={"service_types": ",".join(camera_data["service_types"])},
             )
 
             return True, None

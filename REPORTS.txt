@@ -1,5 +1,5 @@
 
-1. 5/10/2024: Aktuelle Projektstruktur                    
+1. 05/10/2024: Aktuelle Projektstruktur                    
           Das Projekt verwendet derzeit ausschließlich Python Django, ein high-level Python-Webframework. 
      Im Projektordner finden Sie zwei Hauptordner (in Python Django als "Apps" genannt): Camera und Sony_camera_control.  
 
@@ -21,3 +21,12 @@
      Gerätespezifikation der Kamera abgerufen werden. Die extrahierten Informationen werden dann in der Datenbank gespeichert. 
      (Diese Funktionen können über das Frontend beim Start der App getestet werden.) Außerdem gibt es am Ende eine Funktion, 
      um eine API-Anfrage an die Kamera zu senden.  
+
+________________________________________________________________________________________________________________________________
+2. 06.10.2024:
+     - Local Service wurde zur Clientseite hinzugefügt.
+
+________________________________________________________________________________________________________________________________
+3. 07.10.2024:
+     - Beziehungstabellen für Kameramodell, API und API-Gruppen wurden entworfen.
+     - Tabellenstruktur in DB wurde entsprechend angepasst.

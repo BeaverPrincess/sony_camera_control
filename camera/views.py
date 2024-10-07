@@ -33,16 +33,19 @@ class FetchDeviceDescriptionView(View):
     ) -> tuple[Optional[dict], Optional[str]]:
         """
         Parse the XML content and extract necessary information.
+
+        Return:
+            Extracted model name, uuid and action list url from device description
         """
         try:
             root = ET.fromstring(xml_content)
             namespace = self._get_namespace(root)
 
-            # Extract device infos
+            # Find model and uuid
             model = root.find(f".//{namespace}friendlyName").text
             uuid = root.find(f".//{namespace}UDN").text
 
-            # Extract ScalarWebAPI namespace for specific elements
+            # Find action list url
             scalar_namespace = {"av": "urn:schemas-sony-com:av"}
             action_list_url = root.find(
                 ".//av:X_ScalarWebAPI_ActionList_URL", namespaces=scalar_namespace

@@ -12,6 +12,7 @@ from .models import CameraInfo
 import time
 import logging
 from .models import CameraModel
+import json
 
 
 class CameraControlView(View):
@@ -20,14 +21,6 @@ class CameraControlView(View):
 
 
 class FetchDeviceDescriptionView(View):
-    def _get_namespace(self, element) -> str:
-        """
-        Extracts the namespace from an XML element.
-        """
-        # The namespace is enclosed in curly braces within the tag
-        namespace_uri = element.tag[element.tag.find("{") : element.tag.find("}") + 1]
-        return namespace_uri
-
     def _parse_device_description(
         self, xml_content: bytes
     ) -> tuple[Optional[dict], Optional[str]]:
@@ -38,14 +31,16 @@ class FetchDeviceDescriptionView(View):
             Extracted model name, uuid and action list url from device description
         """
         try:
+            # Parse the XML content from the given bytes.
             root = ET.fromstring(xml_content)
-            namespace = self._get_namespace(root)
+            # Extract the namespace from the root tag.
+            namespace = root.tag[root.tag.find("{") : root.tag.find("}") + 1]
 
-            # Find model and uuid
+            # Find 'friendlyName' and 'UDN' tags aka model and uuid
             model = root.find(f".//{namespace}friendlyName").text
             uuid = root.find(f".//{namespace}UDN").text
 
-            # Find action list url
+            # Adjust namepspace for action list url and search for it
             scalar_namespace = {"av": "urn:schemas-sony-com:av"}
             action_list_url = root.find(
                 ".//av:X_ScalarWebAPI_ActionList_URL", namespaces=scalar_namespace
@@ -70,7 +65,7 @@ class FetchDeviceDescriptionView(View):
         Save camera info and services to the database.
         """
         try:
-            try:
+            try:  # This tell the data base to get the object from CameraModel table with the extracted model from the xml
                 camera_model = CameraModel.objects.get(model=camera_data["model"])
             except CameraModel.DoesNotExist:
                 return (
@@ -78,6 +73,7 @@ class FetchDeviceDescriptionView(View):
                     f"Error: Camera model '{camera_data['model']}' not found in the database.",
                 )
 
+            # Model from CameraModel founded -> Search in CameraInfo for object with the same uuid -> if founded then update else create (this means new device)
             CameraInfo.objects.update_or_create(
                 uuid=camera_data["uuid"],
                 defaults={
@@ -94,26 +90,21 @@ class FetchDeviceDescriptionView(View):
                 f"Error: Failed to save camera info to the database.\n{str(e)}",
             )
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def post(self, request: HttpRequest) -> HttpResponse:
         """
-        Use location URL to fetch the device description, parse it, and save to the database.
+        Expects POST request to this Class View, in our case request containing the XML Device Description
         """
         try:
-            response = requests.get("http://localhost:8001/discover")
-            if response.status_code == 200:
-                data = response.json()
-                error_alert = ""
-                if "error" in data:
-                    error_alert = data["error"]
-                else:
-                    device_description = data.get("device_description")
-                    print(device_description)
-            else:
-                error_alert = "Failed to fetch device description from local service."
-        except Exception as e:
-            error_alert = f"Error: {str(e)}"
+            # Extract device description from the post request
+            device_description = request.POST.get("device_description")
+            if not device_description:
+                return render(
+                    request,
+                    "camera_control.html",
+                    {"alert": "No device description found in request."},
+                )
 
-        if not error_alert:
+            # Extract model name, uuid and action list url from device description
             camera_data, parse_error = self._parse_device_description(
                 device_description
             )
@@ -124,6 +115,8 @@ class FetchDeviceDescriptionView(View):
                     "camera_control.html",
                     {"alert": "Parsing device discription failed."},
                 )
+
+            # Save model name, uuid and action list in table keeping track of what devices have connected to this Server
             success, save_error = self._save_camera_info(camera_data)
             if save_error:
                 return render(request, "camera_control.html", {"alert": save_error})
@@ -133,12 +126,11 @@ class FetchDeviceDescriptionView(View):
                 "camera_control.html",
                 {"alert": "Device description retrieved and saved successfully!"},
             )
-        else:
-            logging.error(error_alert)
+        except Exception as e:
             return render(
                 request,
                 "camera_control.html",
-                {"alert": "Error at retrieving device descriptions."},
+                {"alert": f"Error: {e}."},
             )
 
 

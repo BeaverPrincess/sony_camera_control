@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sony Camera Control</title>
+    <meta name="csrf-token" content="{% csrf_token %}">
 </head>
 <body>
     <h1>Control your Sony Camera</h1>
 
-    <form method="GET" action="{% url 'fetch_device_description' %}">
-        <button type="submit">Discover Camera</button>
-    </form>
+    <button id="discover-button">Discover Camera</button>
 
     {% if alert %}
         <h1>{{ alert }}</h1>
@@ -19,5 +18,65 @@
     <form method="GET" action="{% url 'get_available_api_list' %}">
         <button type="submit">Get Available API List</button>
     </form>
+
+    <p id="csrf-token-display"></p>
+
+    <form style="display: none;">
+        {% csrf_token %}
+    </form>
+
+    <script>
+        // Function to retrieve the CSRF token cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        // Make a request to the local service
+        document.getElementById('discover-button').addEventListener('click', function() {
+            fetch('http://localhost:8001/discover')
+                .then(response => response.json())
+                .then(data => {
+                    // Create a form and submit it to the server
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{% url "fetch_device_description" %}';
+
+                    // Add CSRF token
+                    const csrfTokenInput = document.createElement('input');
+                    csrfTokenInput.type = 'hidden';
+                    csrfTokenInput.name = 'csrfmiddlewaretoken';
+                    csrfTokenInput.value = getCookie('csrftoken');
+                    form.appendChild(csrfTokenInput);
+
+                    // Add device_description input
+                    const deviceDescriptionInput = document.createElement('input');
+                    deviceDescriptionInput.type = 'hidden';
+                    deviceDescriptionInput.name = 'device_description';
+                    deviceDescriptionInput.value = data.device_description;
+                    form.appendChild(deviceDescriptionInput);
+
+                    // Append form to body and submit
+                    document.body.appendChild(form);
+                    form.submit();
+                })
+                .catch(error => {
+                    console.error('Error fetching from local service:', error);
+                    alert('Failed to fetch data from local service.');
+                });
+            });
+    </script>
 </body>
 </html>

@@ -39,6 +39,10 @@ class APIGroup(models.Model):
 
 
 class API(models.Model):
+    """
+    Model for actual APIs.
+    """
+
     api_name = models.CharField(max_length=100)
     group_name = models.ForeignKey(
         "APIGroup", on_delete=models.CASCADE, related_name="apis"

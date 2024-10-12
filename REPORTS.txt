@@ -30,3 +30,11 @@ ________________________________________________________________________________
 3. 07.10.2024:
      - Beziehungstabellen für Kameramodell, API und API-Gruppen wurden entworfen.
      - Tabellenstruktur in DB wurde entsprechend angepasst.
+
+________________________________________________________________________________________________________________________________
+4. 08.10.2024:
+     - Implemented logic to send request to local service to FE via JS.
+
+________________________________________________________________________________________________________________________________
+5. 12.10.2024:
+     - Tried to implement Django Unicorn.

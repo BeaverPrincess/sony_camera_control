@@ -7,17 +7,19 @@
     <meta name="csrf-token" content="{% csrf_token %}">
 </head>
 <body>
-    <h1>Control your Sony Camera</h1>
+    <h1>Connect to your Sony Camera</h1>
 
-    <button id="discover-button">Discover Camera</button>
+    <button id="discover-button">Start connnecting</button>
 
     {% if alert %}
         <h1>{{ alert }}</h1>
     {% endif %}
 
-    <form method="GET" action="{% url 'get_available_api_list' %}">
-        <button type="submit">Get Available API List</button>
-    </form>
+    {% if controlable %}
+        <form method="GET" action="{% url 'control_camera' %}">
+            <button type="submit">Start record mode</button>
+        </form>
+    {% endif %}
 
     <p id="csrf-token-display"></p>
 

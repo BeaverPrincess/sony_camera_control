@@ -38,3 +38,16 @@ ________________________________________________________________________________
 ________________________________________________________________________________________________________________________________
 5. 12.10.2024:
      - Tried to implement Django Unicorn.
+
+________________________________________________________________________________________________________________________________
+6. 13.10.2024:
+     - Figuring out how to structure DB system to best communicate and implement their appropriate JSON objects into their models.
+
+________________________________________________________________________________________________________________________________
+7. 16.10.2024:
+     - Tried again to cooperate Django Unicorn for same page rendering, didnt work out as expected -> scraped.
+
+________________________________________________________________________________________________________________________________
+8. 17.10.2024:
+     - Refractored Program structure for better grouping.
+     - Seperated device fetching template and device controlling template.

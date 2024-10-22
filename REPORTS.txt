@@ -51,3 +51,15 @@ ________________________________________________________________________________
 8. 17.10.2024:
      - Refractored Program structure for better grouping.
      - Seperated device fetching template and device controlling template.
+
+________________________________________________________________________________________________________________________________
+9. 21.10.2024:
+     - Combine control view and adjust fetching method simplifying endpoints.
+     - Research to get LiveView Streaming to work aka streaming camera view to the client (Not done yet).
+
+________________________________________________________________________________________________________________________________
+10. 22.10.2024:
+     - Bring api sending logic to the client side, server serves client with propriate json object and acriton list url in oder
+     to control the camera, client need to be the one who actually send the api request to the camera.
+     - Extend local service to act as proxy and relay the API request from the client to the camera (LS is the one which actually 
+     sends the API) -> circumvent the CORS restrictions of Browsers.

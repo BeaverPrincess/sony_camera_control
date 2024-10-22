@@ -6,5 +6,66 @@
 </head>
 <body>
   <h1>Camera control</h1>
+
+  {% if alert %}
+    <h1>{{ alert }}</h1>
+  {% endif %}
+
+  <button onclick="sendAction('start')">Start Record Mode</button>
+  <button onclick="sendAction('stop')">Stop Record Mode</button>
+  <button onclick="sendAction('start_liveview')">Start Live View</button>
+  <button onclick="sendAction('stop_liveview')">Stop Live View</button>
+
+  <script>
+    function sendAction(action) {
+      // Create a FormData object to send the action to the server
+      const formData = new FormData();
+      formData.append('action', action);
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      // Send AJAX POST request to the server
+      fetch("{% url 'control_camera' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert('Error: ' + data.error);
+        } else {
+          // Use the action_list_url and payload to send API request to the camera
+          sendRequestToLocalServer(data.action_list_url, data.payload);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    }
+
+    function sendRequestToLocalServer(actionListUrl, payload) {
+      // Send API request to the local server running on port 8001
+      fetch('http://localhost:8001/camera_control', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          'action_list_url': actionListUrl,
+          'payload': payload
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Camera Response:', data);
+        alert('Action "' + payload.method + '" executed successfully.');
+      })
+      .catch((error) => {
+        console.error('Error communicating with local server:', error);
+      });
+    }
+  </script>
 </body>
 </html>

@@ -33,33 +33,44 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________________
 4. 08.10.2024:
-     - Implemented logic to send request to local service to FE via JS.
+     - Die Logik, um Anfragen vom Frontend an den Local Service über JS zu senden, wurde implementiert.
 
 ________________________________________________________________________________________________________________________________
 5. 12.10.2024:
-     - Tried to implement Django Unicorn.
+     - Versuchte, Django Unicorn zu implementieren.
 
 ________________________________________________________________________________________________________________________________
 6. 13.10.2024:
-     - Figuring out how to structure DB system to best communicate and implement their appropriate JSON objects into their models.
+     - Versucht herauszufinden, wie das Datenbanksystem strukturiert werden kann, um die entsprechenden JSON-Objekte optimal in 
+     ihre Modelle zu integrieren und die Kommunikation zu verbessern.
 
 ________________________________________________________________________________________________________________________________
 7. 16.10.2024:
-     - Tried again to cooperate Django Unicorn for same page rendering, didnt work out as expected -> scraped.
+     - Habe erneut versucht, Django Unicorn für das Rendering auf derselben Seite zu integrieren, hat jedoch nicht wie erwartet 
+     funktioniert -> verworfen.
 
 ________________________________________________________________________________________________________________________________
 8. 17.10.2024:
-     - Refractored Program structure for better grouping.
-     - Seperated device fetching template and device controlling template.
-
+     - Die Programmstruktur wurde refaktoriert, um eine bessere Gruppierung zu ermöglichen.
+     - Das Template für das Camera-Such und das Template für die Camerasteuerung wurden getrennt.
 ________________________________________________________________________________________________________________________________
 9. 21.10.2024:
-     - Combine control view and adjust fetching method simplifying endpoints.
-     - Research to get LiveView Streaming to work aka streaming camera view to the client (Not done yet).
+     - Die Kontrollansicht wurde kombiniert und die Abrufmethode angepasst, um die Endpunkte zu vereinfachen.
+     - Es wurde recherchiert, wie das LiveView-Streaming funktioniert, also das Streamen der Kamerasicht zum Client (noch nicht 
+     abgeschlossen).
 
 ________________________________________________________________________________________________________________________________
 10. 22.10.2024:
-     - Bring api sending logic to the client side, server serves client with propriate json object and acriton list url in oder
-     to control the camera, client need to be the one who actually send the api request to the camera.
-     - Extend local service to act as proxy and relay the API request from the client to the camera (LS is the one which actually 
-     sends the API) -> circumvent the CORS restrictions of Browsers.
+     - Die Logik für das Senden von API-Anfragen wurde auf die Client-Seite verlagert. Der Server liefert dem Client das passende 
+     JSON-Objekt und die ActionListUrl. Um die Kamera zu steuern, muss der Client selbst die API-Anfrage an die 
+     Kamera senden.
+     - Der Local Service wurde erweitert, um als Proxy zu funktionieren und die API-Anfrage vom Client an die Kamera weiterzuleiten 
+     (der Local Service ist derjenige, der tatsächlich die API-Anfrage sendet) -> um die CORS-Einschränkungen der Browsers 
+     zu umgehen.
+
+________________________________________________________________________________________________________________________________
+11. 23.10.2024:
+     - Verbessern Datenbankstruktur.
+     - Methoden zum dynamischen Abrufen von JSON-Objekten und Parametern aus der Datenbank wurden implementiert (teilweise).
+     - Die Logik, um die UUID vom Kamera-Suchtemplate an die Steuerungsansicht zu übergeben, um die aktuelle Kamera 
+     nachzuverfolgen, wurde implementiert.

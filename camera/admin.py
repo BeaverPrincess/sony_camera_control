@@ -4,7 +4,7 @@ from .models import CameraInfo, APIGroup, API, CameraModel
 
 @admin.register(CameraInfo)
 class CameraInfoAdmin(admin.ModelAdmin):
-    list_display = ("model", "uuid", "action_list_url")
+    list_display = ("model", "uuid", "action_list_url", "last_connected")
 
 
 @admin.register(CameraModel)
@@ -28,6 +28,7 @@ class APIAdmin(admin.ModelAdmin):
         "api_name",
         "group_name",
         "description",
+        "json_object",
         "json_params",
         "service_endpoint",
     )

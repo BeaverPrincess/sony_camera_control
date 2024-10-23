@@ -121,12 +121,14 @@ class FetchDeviceDescriptionView(View):
             if save_error:
                 return render(request, "connect_camera.html", {"alert": save_error})
 
+            ## TO-DO: Implement a way to pass the uuid to the control view
+
             return render(
                 request,
                 "connect_camera.html",
                 {
-                    "alert": "Device description retrieved and saved successfully!",
-                    "controlable": True,
+                    "alert": f"Device description retrieved and saved successfully!\nUUID: {camera_data["uuid"]}",
+                    "uuid": camera_data["uuid"],
                 },
             )
         except Exception as e:

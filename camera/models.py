@@ -12,6 +12,10 @@ class CameraInfo(models.Model):
         unique=True,
     )
     action_list_url = models.URLField(help_text="URL endpoint for API calls.")
+    last_connected = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.model}"
 
 
 class CameraModel(models.Model):
@@ -48,5 +52,9 @@ class API(models.Model):
         "APIGroup", on_delete=models.CASCADE, related_name="apis"
     )
     description = models.TextField(blank=True, null=True)
-    json_params = models.JSONField(blank=True, null=True)
+    json_object = models.JSONField(null=True, blank=True, default=None)
+    json_params = models.TextField(null=True, blank=True, default=None)
     service_endpoint = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.api_name

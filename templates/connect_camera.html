@@ -15,8 +15,9 @@
         <h1>{{ alert }}</h1>
     {% endif %}
 
-    {% if controlable %}
+    {% if uuid %}
         <form method="GET" action="{% url 'control_camera' %}">
+            <input type="hidden" name="uuid" value="{{ uuid }}">
             <button type="submit">Start record mode</button>
         </form>
     {% endif %}

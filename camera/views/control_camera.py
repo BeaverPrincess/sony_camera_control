@@ -6,48 +6,111 @@ from django.http import HttpResponse, HttpRequest, StreamingHttpResponse
 from django.shortcuts import render
 from django.conf import settings
 from django.views import View
-from camera.models import CameraInfo
+from camera.models import CameraInfo, CameraModel, API
 import logging
 
 
 class CameraControlView(View):
+    """
+    This Class View handles the functions on the server side for the controlling camera endpoint.
+    """
+
+    current_uuid = "uuid:000000001000-1010-8000-9AF17057BD5C"
+
     def get(self, request: HttpRequest) -> HttpResponse:
+        """
+        Handle GET request from FE.
+        Rightnow acts as default launch.
+        """
+        uuid = request.GET.get("uuid")
+        self.current_uuid = uuid
         return render(request, "control_camera.html")
 
-    def post(self, request):
-        action = request.POST.get("action")
-        camera_info = CameraInfo.objects.first()  # Fetch camera info
-
-        if not camera_info or not camera_info.action_list_url:
-            return JsonResponse({"error": "Camera not found in DB."}, status=404)
-
+    def post(self, request: HttpRequest) -> JsonResponse:
+        """
+        Handle POST request from FE.
+        """
+        camera_info = CameraInfo.objects.get(uuid=self.current_uuid)
         action_list_url = camera_info.action_list_url + "/camera"
 
-        # Construct the JSON payload based on the action
-        api_request_param = {
-            "params": [],
-            "id": 1,
-            "version": "1.0",
-        }
+        action = request.POST.get("action")
+        api_to_fetch = None
 
-        if action == "start":
-            api_request_param["method"] = "startRecMode"
-        elif action == "stop":
-            api_request_param["method"] = "stopRecMode"
+        if action == "start_rec_mode":
+            api_to_fetch = "startRecMode"
+        elif action == "stop_rec_mode":
+            api_to_fetch = "stopRecMode"
         elif action == "start_liveview":
-            api_request_param["method"] = "startLiveview"
+            api_to_fetch = "startLiveview"
         elif action == "stop_liveview":
-            api_request_param["method"] = "stopLiveview"
+            api_to_fetch = "stopLiveview"
         else:
             return JsonResponse({"error": "Invalid action."}, status=400)
+
+        json_object, params = self._fetch_json_object(api_to_fetch)
+        if json_object is None:
+            return JsonResponse(
+                {"error": f"Current model doesnt support the API {api_to_fetch}."},
+                status=400,
+            )
+
+        if params:
+            params = [self._convert_param(param) for param in params.split(",")]
+            if len(params) > 1:
+                return JsonResponse(
+                    {"incompleted_json_object": json_object, "params": params},
+                )
+            json_object["params"] = [params]
+        else:
+            json_object["params"] = []
 
         # Return the action list URL and the constructed JSON payload
         response_data = {
             "action_list_url": action_list_url,
-            "payload": api_request_param,
+            "payload": json_object,
         }
 
         return JsonResponse(response_data)
+
+    def _fetch_json_object(self, api_to_fetch: str):
+        """
+        From the requested api, fetching its corresponding json object and params from the DB.
+        """
+        # Fetch the model of the camera instace with the uuid -> get the supported api groups
+        requested_model = CameraInfo.objects.get(uuid=self.current_uuid).model
+        supported_groups = requested_model.api_groups.values_list(
+            "group_name", flat=True
+        )
+        # Fetch the API instance
+        requested_api = API.objects.get(api_name=api_to_fetch)
+        # If the API that the requested API belongs to also in the supported groups of the camera model.
+        if requested_api.group_name.group_name in supported_groups:
+            json_object = requested_api.json_object
+            params = requested_api.json_params
+            return json_object, params
+        return None, None
+
+    def _convert_param(self, param: str) -> str | int | bool:
+        """
+        API Params are saved in DB as string but they can either be str, int or bool for the construction the json payload.
+        Convert param into its actual type.
+        """
+        param = param.strip()
+        if param.lower() == "true":
+            return True
+        elif param.lower() == "false":
+            return False
+
+        try:
+            return int(param)
+        except ValueError:
+            pass
+
+        try:
+            return float(param)
+        except ValueError:
+            pass
+        return param
 
     # def post(self, request: HttpRequest) -> HttpResponse:
     #     camera_info = (

@@ -34,23 +34,13 @@ class CameraControlView(View):
         action_list_url = camera_info.action_list_url + "/camera"
 
         action = request.POST.get("action")
-        api_to_fetch = None
-
-        if action == "start_rec_mode":
-            api_to_fetch = "startRecMode"
-        elif action == "stop_rec_mode":
-            api_to_fetch = "stopRecMode"
-        elif action == "start_liveview":
-            api_to_fetch = "startLiveview"
-        elif action == "stop_liveview":
-            api_to_fetch = "stopLiveview"
-        else:
+        if not action:
             return JsonResponse({"error": "Invalid action."}, status=400)
 
-        json_object, params = self._fetch_json_object(api_to_fetch)
+        json_object, params = self._fetch_json_object(action)
         if json_object is None:
             return JsonResponse(
-                {"error": f"Current model doesnt support the API {api_to_fetch}."},
+                {"error": f"Current model doesnt support the API {action}."},
                 status=400,
             )
 
@@ -66,6 +56,7 @@ class CameraControlView(View):
 
         # Return the action list URL and the constructed JSON payload
         response_data = {
+            "action": action,
             "action_list_url": action_list_url,
             "payload": json_object,
         }
@@ -92,8 +83,8 @@ class CameraControlView(View):
 
     def _convert_param(self, param: str) -> str | int | bool:
         """
-        API Params are saved in DB as string but they can either be str, int or bool for the construction the json payload.
-        Convert param into its actual type.
+        API Params are saved in DB as string but they can either be str, int or bool depending on specific API.
+        Convert a param into its actual type.
         """
         param = param.strip()
         if param.lower() == "true":

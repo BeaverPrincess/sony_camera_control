@@ -3,7 +3,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sony Camera Control</title>
+  <style>
+    #liveViewContainer {
+      display: none; /* Hidden by default */
+      margin-top: 20px;
+    }
+    #liveViewImage {
+      width: 700px; 
+      height: 500px; 
+      border: 1px solid #ccc;
+    }
+  </style>
 </head>
+
 <body>
   <h1>Camera control</h1>
 
@@ -11,10 +23,16 @@
     <h1>{{ alert }}</h1>
   {% endif %}
 
-  <button onclick="sendAction('start_rec_mode')">Start Record Mode</button>
-  <button onclick="sendAction('stop_rec_mode')">Stop Record Mode</button>
-  <button onclick="sendAction('start_liveview')">Start Live View</button>
-  <button onclick="sendAction('stop_liveview')">Stop Live View</button>
+  <button onclick="sendAction('startRecMode')">Start Record Mode</button>
+  <button onclick="sendAction('stopRecMode')">Stop Record Mode</button>
+  <button onclick="sendAction('startLiveview')">Start Live View</button>
+  <button onclick="sendAction('stopLiveview')">Stop Live View</button>
+
+  <div id="liveViewContainer">
+    <h2>Live View</h2>
+    <img id="liveViewImage" src="" alt="Live View Stream">
+    <h1>LiveView Window</h1>
+  </div>
 
   <script>
     function sendAction(action) {
@@ -36,8 +54,9 @@
         if (data.error) {
           alert('Error: ' + data.error);
         } else {
+          console.log("Server Payload: ",data)
           // Use the action_list_url and payload to send API request to the camera
-          sendRequestToLocalServer(data.action_list_url, data.payload);
+          sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
         }
       })
       .catch((error) => {
@@ -45,7 +64,7 @@
       });
     }
 
-    function sendRequestToLocalServer(actionListUrl, payload) {
+    function sendRequestToLocalServer(actionListUrl, payload, action) {
       // Send API request to the local server running on port 8001
       fetch('http://localhost:8001/camera_control', {
         method: 'POST',
@@ -53,6 +72,7 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          'action': action,
           'action_list_url': actionListUrl,
           'payload': payload
         })
@@ -60,7 +80,24 @@
       .then(response => response.json())
       .then(data => {
         console.log('Camera Response:', data);
-        alert('Action "' + payload.method + '" executed successfully.');
+        if (data.error) {
+          alert('Error: ' + data.error);
+          return;
+        }
+        
+        // If response from local server is success and startLiveview is requested, make the container visible
+        if (action == 'startLiveview') {
+          document.getElementById('liveViewContainer').style.display = 'block';
+        // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
+        // When the "source" of the "img" tag is set, browser automatically send GET request at the source endpoint 
+        // -> this will trigger the liveview data stream (see Local Server code).  
+          document.getElementById('liveViewImage').src = 'http://localhost:8001/liveview?' + new Date().getTime();
+        } else if (action === 'stopLiveview') {
+          document.getElementById('liveViewContainer').style.display = 'none';
+          document.getElementById('liveViewImage').src = '';
+        } else {
+          alert('Action "' + payload.method + '" executed successfully.');
+        }
       })
       .catch((error) => {
         console.error('Error communicating with local server:', error);

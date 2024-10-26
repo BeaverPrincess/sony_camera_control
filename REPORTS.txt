@@ -74,3 +74,13 @@ ________________________________________________________________________________
      - Methoden zum dynamischen Abrufen von JSON-Objekten und Parametern aus der Datenbank wurden implementiert (teilweise).
      - Die Logik, um die UUID vom Kamera-Suchtemplate an die Steuerungsansicht zu übergeben, um die aktuelle Kamera 
      nachzuverfolgen, wurde implementiert.
+
+________________________________________________________________________________________________________________________________
+12. 25.10.2024:
+     - Versucht LiveView zu streamen, unerfolgreich.
+
+________________________________________________________________________________________________________________________________
+13. 26.10.2024:
+     - Live-View erfolgreich in den Client-Browser gestreamt.
+     - Local Service wurde refaktoriert und gereinigt bzw. Beschreibungen wurden addiert.
+

@@ -84,3 +84,8 @@ ________________________________________________________________________________
      - Live-View erfolgreich in den Client-Browser gestreamt.
      - Local Service wurde refaktoriert und gereinigt bzw. Beschreibungen wurden addiert.
 
+________________________________________________________________________________________________________________________________
+14. 29.10.2024:
+     - Einige Kamera-Modus-Beziehungen in der Datenbank wurde getestet.
+     - Einen Sandbox-Modus wird erstellt, um jederzeit eine beliebige Kamera-API zu senden, testen und beobachten (in Bearbeitung).
+

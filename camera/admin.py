@@ -31,4 +31,5 @@ class APIAdmin(admin.ModelAdmin):
         "json_object",
         "json_params",
         "service_endpoint",
+        "required_mode",
     )

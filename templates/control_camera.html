@@ -27,6 +27,8 @@
   <button onclick="sendAction('stopRecMode')">Stop Record Mode</button>
   <button onclick="sendAction('startLiveview')">Start Live View</button>
   <button onclick="sendAction('stopLiveview')">Stop Live View</button>
+  <br>
+  <button onclick="sendAction('apiFromServer')">Test API from server</button>
 
   <div id="liveViewContainer">
     <h2>Live View</h2>
@@ -42,26 +44,37 @@
       formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
       // Send AJAX POST request to the server
-      fetch("{% url 'control_camera' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          alert('Error: ' + data.error);
-        } else {
-          console.log("Server Payload: ",data)
-          // Use the action_list_url and payload to send API request to the camera
-          sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+      if (action != "apiFromServer"){
+        fetch("{% url 'control_camera' %}", {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert('Error: ' + data.error);
+          } else {
+            console.log("Server Payload: ",data)
+            // Use the action_list_url and payload to send API request to the camera
+            sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      }
+      else{ // This else is for testing camera api direct from Server.
+        fetch("{% url 'control_camera' %}", {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }});
+      }
+
     }
 
     function sendRequestToLocalServer(actionListUrl, payload, action) {

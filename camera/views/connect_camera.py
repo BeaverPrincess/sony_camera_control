@@ -13,6 +13,7 @@ import time
 import logging
 from camera.models import CameraModel
 import json
+from camera.enums import CameraModes
 
 
 class CameraConnectView(View):
@@ -129,6 +130,7 @@ class FetchDeviceDescriptionView(View):
                 {
                     "alert": f"Device description retrieved and saved successfully!\nUUID: {camera_data["uuid"]}",
                     "uuid": camera_data["uuid"],
+                    "mode": CameraModes.Record,
                 },
             )
         except Exception as e:

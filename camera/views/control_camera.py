@@ -6,8 +6,11 @@ from django.http import HttpResponse, HttpRequest, StreamingHttpResponse
 from django.shortcuts import render
 from django.conf import settings
 from django.views import View
-from camera.models import CameraInfo, CameraModel, API
-import logging
+from camera.models import CameraInfo, API
+from camera.views.helper_functions.api_json_retrieval import (
+    fetch_json_object,
+    convert_param,
+)
 
 
 class CameraControlView(View):
@@ -37,7 +40,7 @@ class CameraControlView(View):
         if not action:
             return JsonResponse({"error": "Invalid action."}, status=400)
 
-        json_object, params = self._fetch_json_object(action)
+        json_object, params = fetch_json_object(self.current_uuid, action)
         if json_object is None:
             return JsonResponse(
                 {"error": f"Current model doesnt support the API {action}."},
@@ -45,7 +48,7 @@ class CameraControlView(View):
             )
 
         if params:
-            params = [self._convert_param(param) for param in params.split(",")]
+            params = [convert_param(param) for param in params.split(",")]
             if len(params) > 1:
                 return JsonResponse(
                     {"incompleted_json_object": json_object, "params": params},
@@ -63,45 +66,45 @@ class CameraControlView(View):
 
         return JsonResponse(response_data)
 
-    def _fetch_json_object(self, api_to_fetch: str):
-        """
-        From the requested api, fetching its corresponding json object and params from the DB.
-        """
-        # Fetch the model of the camera instace with the uuid -> get the supported api groups
-        requested_model = CameraInfo.objects.get(uuid=self.current_uuid).model
-        supported_groups = requested_model.api_groups.values_list(
-            "group_name", flat=True
-        )
-        # Fetch the API instance
-        requested_api = API.objects.get(api_name=api_to_fetch)
-        # If the API that the requested API belongs to also in the supported groups of the camera model.
-        if requested_api.group_name.group_name in supported_groups:
-            json_object = requested_api.json_object
-            params = requested_api.json_params
-            return json_object, params
-        return None, None
+    # def _fetch_json_object(self, api_to_fetch: str):
+    #     """
+    #     From the requested api, fetching its corresponding json object and params from the DB.
+    #     """
+    #     # Fetch the model of the camera instace with the uuid -> get the supported api groups
+    #     requested_model = CameraInfo.objects.get(uuid=self.current_uuid).model
+    #     supported_groups = requested_model.api_groups.values_list(
+    #         "group_name", flat=True
+    #     )
+    #     # Fetch the API instance
+    #     requested_api = API.objects.get(api_name=api_to_fetch)
+    #     # If the API that the requested API belongs to also in the supported groups of the camera model.
+    #     if requested_api.group_name.group_name in supported_groups:
+    #         json_object = requested_api.json_object
+    #         params = requested_api.json_params
+    #         return json_object, params
+    #     return None, None
 
-    def _convert_param(self, param: str) -> str | int | bool:
-        """
-        API Params are saved in DB as string but they can either be str, int or bool depending on specific API.
-        Convert a param into its actual type.
-        """
-        param = param.strip()
-        if param.lower() == "true":
-            return True
-        elif param.lower() == "false":
-            return False
+    # def _convert_param(self, param: str) -> str | int | bool:
+    #     """
+    #     API Params are saved in DB as string but they can either be str, int or bool depending on specific API.
+    #     Convert a param into its actual type.
+    #     """
+    #     param = param.strip()
+    #     if param.lower() == "true":
+    #         return True
+    #     elif param.lower() == "false":
+    #         return False
 
-        try:
-            return int(param)
-        except ValueError:
-            pass
+    #     try:
+    #         return int(param)
+    #     except ValueError:
+    #         pass
 
-        try:
-            return float(param)
-        except ValueError:
-            pass
-        return param
+    #     try:
+    #         return float(param)
+    #     except ValueError:
+    #         pass
+    #     return param
 
     # def post(self, request: HttpRequest) -> HttpResponse:
     #     camera_info = (

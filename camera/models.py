@@ -1,4 +1,5 @@
 from django.db import models
+from camera.enums import CameraModes
 
 
 class CameraInfo(models.Model):
@@ -55,6 +56,12 @@ class API(models.Model):
     json_object = models.JSONField(null=True, blank=True, default=None)
     json_params = models.TextField(null=True, blank=True, default=None)
     service_endpoint = models.CharField(max_length=255)
+    required_mode = models.CharField(
+        max_length=100,
+        choices=CameraModes.choices,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.api_name

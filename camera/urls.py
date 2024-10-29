@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import (
+from camera.views import (
     CameraConnectView,
     FetchDeviceDescriptionView,
     CameraControlView,
+    SandboxApiSelectionView,
 )
 
 urlpatterns = [
@@ -16,5 +17,10 @@ urlpatterns = [
         "control-camera/",
         CameraControlView.as_view(),
         name="control_camera",
+    ),
+    path(
+        "sandbox-api-selection/",
+        SandboxApiSelectionView.as_view(),
+        name="sandbox_api_selection",
     ),
 ]

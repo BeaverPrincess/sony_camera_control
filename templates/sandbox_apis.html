@@ -1,0 +1,23 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sandbox Mode</title>
+</head>
+<body>
+  <h1>Select and API</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
+
+  {% if api %}
+    <h2>Selected API:</h2>
+    <p>Api: {{ api.action }}</p>
+    <p>Action list url: {{ api.action_list_url }}</p>
+    <p>Json object: {{ api.payload }}</p>
+  {% endif %}
+</body>
+</html>

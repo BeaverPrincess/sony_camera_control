@@ -17,9 +17,10 @@
 
     {% if uuid %}
         <form method="GET" action="{% url 'control_camera' %}">
+            {% csrf_token %}
             <input type="hidden" name="uuid" value="{{ uuid }}">
             <input type="hidden" name="mode" value="{{ mode }}">
-            <button type="submit">Start record mode</button>
+            <button type="submit">Start controlling mode</button>
         </form>
 
         <form method="GET" action="{% url 'sandbox_api_selection' %}">

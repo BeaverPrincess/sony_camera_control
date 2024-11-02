@@ -18,22 +18,32 @@ class CameraControlView(View):
     This Class View handles the functions on the server side for the controlling camera endpoint.
     """
 
-    current_uuid = "uuid:000000001000-1010-8000-9AF17057BD5C"
-
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def dispatch(self, request, *args, **kwargs):
         """
-        Handle GET request from FE.
+        For now only handle GET request from FE.
         Rightnow acts as default launch.
         """
-        uuid = request.GET.get("uuid")
-        self.current_uuid = uuid
+        # if request.method != "POST":
+        #     return JsonResponse({"error": "Method Not Allowed"}, status=405)
+        if request.method == "GET":
+            self.current_uuid = request.GET.get("uuid")
+        print(f"UUID in CameraControlView: {self.current_uuid}")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request: HttpRequest) -> HttpResponse:
         return render(request, "control_camera.html")
 
     def post(self, request: HttpRequest) -> JsonResponse:
         """
         Handle POST request from FE.
         """
-        camera_info = CameraInfo.objects.get(uuid=self.current_uuid)
+        try:
+            camera_info = CameraInfo.objects.get(uuid=self.current_uuid)
+        except CameraInfo.DoesNotExist:
+            return JsonResponse(
+                {"error": "No UUID or no camera with given UUID in database."},
+                status=404,
+            )
         action_list_url = camera_info.action_list_url + "/camera"
 
         action = request.POST.get("action")

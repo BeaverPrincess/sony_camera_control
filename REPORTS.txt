@@ -53,6 +53,7 @@ ________________________________________________________________________________
 8. 17.10.2024:
      - Die Programmstruktur wurde refaktoriert, um eine bessere Gruppierung zu ermöglichen.
      - Das Template für das Camera-Such und das Template für die Camerasteuerung wurden getrennt.
+
 ________________________________________________________________________________________________________________________________
 9. 21.10.2024:
      - Die Kontrollansicht wurde kombiniert und die Abrufmethode angepasst, um die Endpunkte zu vereinfachen.
@@ -88,4 +89,14 @@ ________________________________________________________________________________
 14. 29.10.2024:
      - Einige Kamera-Modus-Beziehungen in der Datenbank wurde getestet.
      - Einen Sandbox-Modus wird erstellt, um jederzeit eine beliebige Kamera-API zu senden, testen und beobachten (in Bearbeitung).
+
+________________________________________________________________________________________________________________________________
+15. 01.11.2024:
+     - Verbessern Sandbox-Modus, ermöglicht Datenübertragung zwischen Sandbox-Modus und Local Service.
+
+________________________________________________________________________________________________________________________________
+16. 01.11.2024:
+     - Behoben: UUID wurde nicht korrekt vom Frontend zum Server übertragen und vom Server verarbeitet.
+
+
 

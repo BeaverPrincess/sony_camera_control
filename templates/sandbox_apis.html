@@ -13,11 +13,51 @@
     <button type="submit">Submit</button>
   </form>
 
+  <div id="response-container"></div>
+
+  <script>
+    function sendRequestToLocalServer(actionListUrl, payload, action) {
+      // Send API request to the local server running on port 8001
+      fetch('http://localhost:8001/camera_control', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          'action': action,
+          'action_list_url': actionListUrl,
+          'payload': payload
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Camera Response:', data);
+        if (data.error) {
+          alert('Error: ' + data.error);
+          return;
+        }
+        // Display the response data on the browser
+        document.getElementById('response-container').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+  </script>
+
   {% if api %}
     <h2>Selected API:</h2>
     <p>Api: {{ api.action }}</p>
     <p>Action list url: {{ api.action_list_url }}</p>
     <p>Json object: {{ api.payload }}</p>
+
+    <script>
+      var actionListUrl = "{{ api.action_list_url }}";
+      var payload = JSON.parse('{{ api.payload|escapejs }}');
+      var action = "{{ api.action }}";
+
+      sendRequestToLocalServer(actionListUrl, payload, action);
+    </script>
   {% endif %}
 </body>
 </html>

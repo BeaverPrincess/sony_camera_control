@@ -5,13 +5,20 @@ from camera.views.helper_functions.api_json_retrieval import (
     fetch_json_object,
     convert_param,
 )
+import json
 
 
 class SandboxApiSelectionView(FormView):
     template_name = "sandbox_apis.html"
     form_class = SandboxApiSelectionForm
-    uuid = "uuid:000000001000-1010-8000-9AF17057BD5C"
+    # uuid = "uuid:000000001000-1010-8000-9AF17057BD5C"
     action_list_url = "http://192.168.122.1:8080/sony/camera"
+
+    def dispatch(self, request, *args, **kwargs):
+        # Extract 'uuid' from GET parameters
+        self.uuid = request.GET.get("uuid")
+        print(f"UUID in sandbox: {self.uuid}")
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         selected_api = form.cleaned_data["api_name"]
@@ -20,7 +27,8 @@ class SandboxApiSelectionView(FormView):
         if json_object is None:
             return self.render_to_response(
                 self.get_context_data(
-                    form=form, error="No json object received from DB."
+                    form=form,
+                    error=f"Current model doesnt support the API {selected_api.api_name}.",
                 )
             )
 
@@ -34,11 +42,10 @@ class SandboxApiSelectionView(FormView):
         else:
             json_object["params"] = []
 
-        # Return the action list URL and the constructed JSON payload
         response_data = {
             "action": selected_api.api_name,
             "action_list_url": self.action_list_url,
-            "payload": json_object,
+            "payload": json.dumps(json_object),
         }
 
         return self.render_to_response(

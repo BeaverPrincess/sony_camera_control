@@ -95,8 +95,14 @@ ________________________________________________________________________________
      - Verbessern Sandbox-Modus, ermöglicht Datenübertragung zwischen Sandbox-Modus und Local Service.
 
 ________________________________________________________________________________________________________________________________
-16. 01.11.2024:
+16. 02.11.2024:
      - Behoben: UUID wurde nicht korrekt vom Frontend zum Server übertragen und vom Server verarbeitet.
+
+________________________________________________________________________________________________________________________________
+16. 03.11.2024:
+     - Behoben: Query für API mit dupliziertem Namen funktioniert im Sandbox-Modus nicht richtig.
+     - Herausfinden, wie man APIs besser über API-Gruppen navigieren soll (in Bearbeitung).
+     - Django-Forms wurde zur Auswahl von APIs im Hauptsteuerungsmodus implementiert.
 
 
 

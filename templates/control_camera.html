@@ -17,18 +17,19 @@
 </head>
 
 <body>
-  <h1>Camera control</h1>
+  <h1>Camera Control</h1>
 
   {% if alert %}
     <h1>{{ alert }}</h1>
   {% endif %}
 
-  <button onclick="sendAction('startRecMode')">Start Record Mode</button>
-  <button onclick="sendAction('stopRecMode')">Stop Record Mode</button>
-  <button onclick="sendAction('startLiveview')">Start Live View</button>
-  <button onclick="sendAction('stopLiveview')">Stop Live View</button>
-  <br>
-  <button onclick="sendAction('apiFromServer')">Test API from server</button>
+  <!-- Render the form using Django's form tools -->
+  <form id="cameraControlForm" method="post" action="{% url 'control_camera' %}">
+    {% csrf_token %}
+    <input type="hidden" name="uuid" value="{{ current_uuid }}">
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
 
   <div id="liveViewContainer">
     <h2>Live View</h2>
@@ -37,45 +38,34 @@
   </div>
 
   <script>
-    function sendAction(action) {
-      // Create a FormData object to send the action to the server
-      const formData = new FormData();
-      formData.append('action', action);
-      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    document.getElementById('cameraControlForm').addEventListener('submit', function (e) {
+      e.preventDefault(); // Prevent default form submission
 
-      // Send AJAX POST request to the server
-      if (action != "apiFromServer"){
-        fetch("{% url 'control_camera' %}", {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-            alert('Error: ' + data.error);
-          } else {
-            console.log("Server Payload: ",data)
-            // Use the action_list_url and payload to send API request to the camera
-            sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
-          }
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-      }
-      else{ // This else is for testing camera api direct from Server.
-        fetch("{% url 'control_camera' %}", {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }});
-      }
+      const formData = new FormData(this);
+      const formAction = this.getAttribute('action');
 
-    }
+      // Send the form data to Django server
+      fetch(formAction, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert('Error: ' + data.error);
+        } else {
+          console.log("Server Payload: ", data);
+          // Send the response data to the local server (Port 8001) for camera control
+          sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
 
     function sendRequestToLocalServer(actionListUrl, payload, action) {
       // Send API request to the local server running on port 8001
@@ -101,9 +91,7 @@
         // If response from local server is success and startLiveview is requested, make the container visible
         if (action == 'startLiveview') {
           document.getElementById('liveViewContainer').style.display = 'block';
-        // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
-        // When the "source" of the "img" tag is set, browser automatically send GET request at the source endpoint 
-        // -> this will trigger the liveview data stream (see Local Server code).  
+          // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
           document.getElementById('liveViewImage').src = 'http://localhost:8001/liveview?' + new Date().getTime();
         } else if (action === 'stopLiveview') {
           document.getElementById('liveViewContainer').style.display = 'none';

@@ -1,24 +1,37 @@
 from camera.models import CameraInfo, API
+import json
 
 
-def fetch_json_object(uuid: str, api_to_fetch: str):
-    """
-    From the requested api, fetching its corresponding json object and params from the DB.
-    """
+def construct_api_payload(uuid: str, api: API):
+    camera_info = CameraInfo.objects.get(uuid=uuid)
+    action_list_url = camera_info.action_list_url + "/camera"
     # Fetch the model of the camera instace with the uuid -> get the supported api groups
-    requested_model = CameraInfo.objects.get(uuid=uuid).model
+    requested_model = camera_info.model
     supported_groups = requested_model.api_groups.values_list("group_name", flat=True)
-    # Fetch the API instance
-    requested_api = API.objects.get(api_name=api_to_fetch)
-    # If the API that the requested API belongs to also in the supported groups of the camera model.
-    if requested_api.group_name.group_name in supported_groups:
-        json_object = requested_api.json_object
-        params = requested_api.json_params
-        return json_object, params
-    return None, None
+
+    if api.group_name.group_name not in supported_groups:
+        return None, f"Current model doesn't support the API {api.api_name}."
+
+    json_object = api.json_object
+    params = api.json_params
+
+    if params:
+        params = [_convert_param(param) for param in params.split(",")]
+        if len(params) > 1:
+            return None, "More than 1 param."  # temp
+        json_object["params"] = params
+    else:
+        json_object["params"] = []
+
+    # Return the action list URL and the constructed JSON payload
+    return {
+        "action": api.api_name,
+        "action_list_url": action_list_url,
+        "payload": json_object,
+    }, None
 
 
-def convert_param(param: str) -> str | int | bool:
+def _convert_param(param: str) -> str | int | bool:
     """
     API Params are saved in DB as string but they can either be str, int or bool depending on specific API.
     Convert a param into its actual type.

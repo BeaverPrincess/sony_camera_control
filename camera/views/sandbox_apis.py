@@ -1,10 +1,6 @@
 from django.views.generic.edit import FormView
-from django.shortcuts import render
 from camera.forms import SandboxApiSelectionForm
-from camera.views.helper_functions.api_json_retrieval import (
-    fetch_json_object,
-    convert_param,
-)
+from camera.views.helper_functions.api_json_retrieval import construct_api_payload
 import json
 
 
@@ -21,34 +17,16 @@ class SandboxApiSelectionView(FormView):
 
     def form_valid(self, form):
         selected_api = form.cleaned_data["api_name"]
+        payload, error = construct_api_payload(self.uuid, selected_api)
 
-        # json_object, params = fetch_json_object(self.uuid, selected_api.api_name)
-        # if json_object is None:
-        #     return self.render_to_response(
-        #         self.get_context_data(
-        #             form=form,
-        #             error=f"Current model doesnt support the API {selected_api.api_name}.",
-        #         )
-        #     )
-        json_object = selected_api.json_object
-        params = selected_api.json_params
+        if not payload and error:
+            return self.render_to_response(
+                self.get_context_data(form=form, error=error)
+            )  # Not supported API
 
-        if params:
-            params = [convert_param(param) for param in params.split(",")]
-            if len(params) > 1:
-                return self.render_to_response(
-                    self.get_context_data(form=form, error="More than 1 param.")
-                )
-            json_object["params"] = params
-        else:
-            json_object["params"] = []
-
-        response_data = {
-            "action": selected_api.api_name,
-            "action_list_url": self.action_list_url,
-            "payload": json.dumps(json_object),
-        }
-
-        return self.render_to_response(
-            self.get_context_data(form=form, api=response_data)
-        )
+        if payload and error:
+            return self.render_to_response(
+                self.get_context_data(form=form, params=payload)
+            )  # More than 1 param -> need to choose ## to be implemented
+        payload["payload"] = json.dumps(payload["payload"])
+        return self.render_to_response(self.get_context_data(form=form, api=payload))

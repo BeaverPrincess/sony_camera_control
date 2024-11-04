@@ -1,20 +1,11 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-import socket
-import requests
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
-from django.shortcuts import render
-from django.conf import settings
-from django.views import View
-from camera.models import CameraInfo, APIGroup
+from django.http import HttpResponse, HttpRequest
+from camera.models import API
 from camera.views.helper_functions.api_json_retrieval import (
-    fetch_json_object,
-    convert_param,
+    construct_api_payload,
 )
 from django.views.generic.edit import FormView
 from camera.forms import CameraControlForm
-from django.utils.http import urlencode
-from django.urls import reverse
+from django.http import JsonResponse
 
 
 class CameraControlView(FormView):
@@ -34,37 +25,22 @@ class CameraControlView(FormView):
 
     def form_valid(self, form):
         # Handle form submission and create response
-        action = form.cleaned_data["action"]
-        print(action)
-        current_uuid = self.request.POST.get("uuid")
-        camera_info = CameraInfo.objects.get(uuid=current_uuid)
-        action_list_url = camera_info.action_list_url + "/camera"
+        selected_api_name = form.cleaned_data["action"]
+        self.current_uuid = self.request.POST.get("uuid")
+        selected_api = API.objects.get(api_name=selected_api_name)
+        payload, error = construct_api_payload(self.current_uuid, selected_api)
 
-        json_object, params = fetch_json_object(current_uuid, action)
-        if json_object is None:
+        if not payload and error:
             return JsonResponse(
-                {"error": f"Current model doesn't support the API {action}."},
-                status=400,
-            )
+                {"error": error},
+            )  # Not supported API
 
-        if params:
-            params = [convert_param(param) for param in params.split(",")]
-            if len(params) > 1:
-                return JsonResponse(
-                    {"incompleted_json_object": json_object, "params": params},
-                )
-            json_object["params"] = [params]
-        else:
-            json_object["params"] = []
+        if payload and error:
+            return JsonResponse(
+                {"params": payload},
+            )  # More than 1 param -> need to choose ## to be implemented
 
-        # Return the action list URL and the constructed JSON payload
-        response_data = {
-            "action": action,
-            "action_list_url": action_list_url,
-            "payload": json_object,
-        }
-
-        return JsonResponse(response_data)
+        return JsonResponse(payload)
 
 
 # class CameraControlView(View):

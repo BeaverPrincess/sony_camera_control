@@ -1,3 +1,3 @@
 from camera.views.connect_camera import CameraConnectView, FetchDeviceDescriptionView
-from camera.views.control_camera import CameraControlView
+from camera.views.control_camera import CameraControlView, APIListView
 from camera.views.sandbox_apis import SandboxApiSelectionView

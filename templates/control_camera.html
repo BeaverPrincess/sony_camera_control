@@ -27,7 +27,12 @@
   <form id="cameraControlForm" method="post" action="{% url 'control_camera' %}">
     {% csrf_token %}
     <input type="hidden" name="uuid" value="{{ current_uuid }}">
-    {{ form.as_p }}
+    <p>
+        {{ form.group.label_tag }} {{ form.group }}
+    </p>
+    <p>
+        {{ form.action.label_tag }} {{ form.action }}
+    </p>
     <button type="submit">Submit</button>
   </form>
 
@@ -38,34 +43,73 @@
   </div>
 
   <script>
-    document.getElementById('cameraControlForm').addEventListener('submit', function (e) {
-      e.preventDefault(); // Prevent default form submission
+    function groupSelectionListener() {
+      const groupSelect = document.getElementById('id_group');
+      const actionSelect = document.getElementById('id_action');
 
-      const formData = new FormData(this);
-      const formAction = this.getAttribute('action');
+      // Listen for changes on the group selection
+      groupSelect.addEventListener('change', function() {
+          const groupId = this.value;
+          // Clear the api selection field (for when switching between groups)
+          actionSelect.innerHTML = '';
 
-      // Send the form data to Django server
-      fetch(formAction, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          alert('Error: ' + data.error);
-        } else {
-          console.log("Server Payload: ", data);
-          // Send the response data to the local server (Port 8001) for camera control
-          sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
+          if (groupId) {
+              // Fetch the apis for the selected group
+              fetch("{% url 'api_list' %}?group_id=" + groupId)
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.error) {
+                          console.error('Error:', data.error);
+                      } else {
+                          // Populate api choices
+                          data.apis.forEach(function(api) {
+                              const apiOption = document.createElement('option');
+                              apiOption.value = api.id;
+                              apiOption.textContent = api.name;
+                              actionSelect.appendChild(apiOption);
+                          });
+                      }
+                  })
+                  .catch((error) => {
+                      console.error('Error fetching APIs:', error);
+                  });
+          }
       });
-    });
+    }
+
+    function formSubmissionListener() {
+      document.getElementById('cameraControlForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent default form submission
+
+        const formData = new FormData(this);
+        const formAction = this.getAttribute('action');
+
+        // Send the form data to Django server
+        fetch(formAction, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert('Error: ' + data.error);
+          } else {
+            console.log("Server Payload: ", data);
+            // Send the response data to the local server (Port 8001) for camera control
+            sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      });
+    }
+
+    groupSelectionListener();
+    formSubmissionListener();
 
     function sendRequestToLocalServer(actionListUrl, payload, action) {
       // Send API request to the local server running on port 8001

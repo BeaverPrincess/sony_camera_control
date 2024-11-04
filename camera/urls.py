@@ -3,7 +3,7 @@ from camera.views import (
     CameraConnectView,
     FetchDeviceDescriptionView,
     CameraControlView,
-    SandboxApiSelectionView,
+    SandboxApiSelectionView,APIListView
 )
 
 urlpatterns = [
@@ -22,5 +22,5 @@ urlpatterns = [
         "sandbox-api-selection/",
         SandboxApiSelectionView.as_view(),
         name="sandbox_api_selection",
-    ),
+    ),path('api/apis/', APIListView.as_view(), name='api_list'),
 ]

@@ -104,5 +104,9 @@ ________________________________________________________________________________
      - Herausfinden, wie man APIs besser über API-Gruppen navigieren soll (in Bearbeitung).
      - Django-Forms wurde zur Auswahl von APIs im Hauptsteuerungsmodus implementiert.
 
+________________________________________________________________________________________________________________________________
+18. 04.11.2024:
+     - Refractored: Beide Modi verwenden dieselbe API-Konstruktionsmethode.
+     - APIs-Navigierung über API-Gruppen im Hauptsteuerungsmodus wurde verbessern.
 
 

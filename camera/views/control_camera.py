@@ -57,13 +57,17 @@ class CameraControlView(FormView):
         selected_api = API.objects.get(id=api_id)
         payload, error = construct_api_payload(current_uuid, selected_api)
 
+        # On error
         if not payload and error:
             return JsonResponse({"error": error})
 
+        # On json with multiple params -> required user to choose which one.
+        # error now holds the params.
         if payload and error:
-            return JsonResponse({"params": payload})
+            return JsonResponse({"payload": payload, "params": error})
 
-        return JsonResponse(payload)
+        # No param
+        return JsonResponse({"payload": payload})
 
 
 {

@@ -36,6 +36,13 @@
     <button type="submit">Submit</button>
   </form>
 
+  <!-- Container for params dropbox -->
+  <div id="paramsContainer" style="display: none;">
+    <label for="paramsSelect">Please select a parameter: </label>
+    <select id="paramsSelect"></select>
+    <button id="paramsConfirmButton" type="button">Confirm</button>
+  </div>
+
   <div id="liveViewContainer">
     <h2>Live View</h2>
     <img id="liveViewImage" src="" alt="Live View Stream">
@@ -96,10 +103,37 @@
         .then(data => {
           if (data.error) {
             alert('Error: ' + data.error);
+          } else if (data.params){
+            const { action_list_url, payload: payloadData, action } = data.payload;
+            const container = document.getElementById('paramsContainer');
+            const paramSelection = document.getElementById('paramsSelect');
+            const confirmButton = document.getElementById('paramsConfirmButton');
+
+            // Populate the select options
+            data.params.forEach(param => {
+              const option = document.createElement('option');
+              option.value = param;
+              option.textContent = param;
+              paramSelection.appendChild(option);
+            });
+            // Unhide the container
+            container.style.display = 'block'; 
+
+            confirmButton.onclick = function() {
+              const selectedParam = paramSelection.value;
+              payloadData['params'] = [selectedParam];
+              sendRequestToLocalServer(
+                action_list_url,
+                payloadData,
+                action
+              );
+
+              container.style.display = 'none';
+              paramSelection.innerHTML = '';
+            };
           } else {
-            console.log("Server Payload: ", data);
             // Send the response data to the local server (Port 8001) for camera control
-            sendRequestToLocalServer(data.action_list_url, data.payload, data.action);
+            sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
           }
         })
         .catch((error) => {
@@ -137,7 +171,7 @@
           document.getElementById('liveViewContainer').style.display = 'block';
           // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
           document.getElementById('liveViewImage').src = 'http://localhost:8001/liveview?' + new Date().getTime();
-        } else if (action === 'stopLiveview') {
+        } else if (action == 'stopLiveview' || action == 'stopRecMode') {
           document.getElementById('liveViewContainer').style.display = 'none';
           document.getElementById('liveViewImage').src = '';
         } else {

@@ -1,8 +1,15 @@
 from camera.models import CameraInfo, API
 import json
+from typing import Tuple
 
 
-def construct_api_payload(uuid: str, api: API):
+def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list | str]:
+    """
+    Construct json object for API call based on choosen action.
+    If error -> None, str.
+    If 1 or less param -> dict, None.
+    If more than 1 param -> dict, list. (The list of params needs to be returned to be choosen by user)
+    """
     camera_info = CameraInfo.objects.get(uuid=uuid)
     action_list_url = camera_info.action_list_url + "/camera"
     # Fetch the model of the camera instace with the uuid -> get the supported api groups
@@ -15,20 +22,22 @@ def construct_api_payload(uuid: str, api: API):
     json_object = api.json_object
     params = api.json_params
 
+    payload = {
+        "action": api.api_name,
+        "action_list_url": action_list_url,
+        "payload": json_object,
+    }
+
     if params:
         params = [_convert_param(param) for param in params.split(",")]
         if len(params) > 1:
-            return None, "More than 1 param."  # temp
+            return payload, params
         json_object["params"] = params
     else:
         json_object["params"] = []
 
     # Return the action list URL and the constructed JSON payload
-    return {
-        "action": api.api_name,
-        "action_list_url": action_list_url,
-        "payload": json_object,
-    }, None
+    return payload, None
 
 
 def _convert_param(param: str) -> str | int | bool:

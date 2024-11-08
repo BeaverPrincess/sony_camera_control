@@ -109,4 +109,9 @@ ________________________________________________________________________________
      - Refractored: Beide Modi verwenden dieselbe API-Konstruktionsmethode.
      - APIs-Navigierung über API-Gruppen im Hauptsteuerungsmodus wurde verbessern.
 
+________________________________________________________________________________________________________________________________
+18. 08.11.2024:
+     - Adjusted: Rückgabetypen im Fall von meheren Params für Json-Objekt.
+     - Behandelte die Params auf dem Frontend und ermöglichte es dem Benutzer, aus den Params auszuwählen und den API-Aufruf zu senden.  
+
 

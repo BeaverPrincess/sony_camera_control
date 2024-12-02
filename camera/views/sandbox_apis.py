@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.views.generic.edit import FormView
 from camera.forms import SandboxApiSelectionForm
 from camera.views.helper_functions.api_json_retrieval import construct_api_payload
@@ -20,13 +21,16 @@ class SandboxApiSelectionView(FormView):
         payload, error = construct_api_payload(self.uuid, selected_api)
 
         if not payload and error:
-            return self.render_to_response(
-                self.get_context_data(form=form, error=error)
-            )  # Not supported API
+            return JsonResponse({"error": error})
+            # return self.render_to_response(
+            #     self.get_context_data(form=form, error=error)
+            # )  # Not supported API
 
         if payload and error:
-            return self.render_to_response(
-                self.get_context_data(form=form, params=payload)
-            )  # More than 1 param -> need to choose ## to be implemented
-        payload["payload"] = json.dumps(payload["payload"])
-        return self.render_to_response(self.get_context_data(form=form, api=payload))
+            return JsonResponse({"payload": payload, "params": error})
+            # return self.render_to_response(
+            #     self.get_context_data(form=form, params=payload)
+            # )  # More than 1 param -> need to choose ## to be implemented
+        # payload["payload"] = json.dumps(payload["payload"])
+        return JsonResponse({"payload": payload})
+        # return self.render_to_response(self.get_context_data(form=form, api=payload))

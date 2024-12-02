@@ -110,8 +110,17 @@ ________________________________________________________________________________
      - APIs-Navigierung über API-Gruppen im Hauptsteuerungsmodus wurde verbessern.
 
 ________________________________________________________________________________________________________________________________
-18. 08.11.2024:
+19. 08.11.2024:
      - Adjusted: Rückgabetypen im Fall von meheren Params für Json-Objekt.
      - Behandelte die Params auf dem Frontend und ermöglichte es dem Benutzer, aus den Params auszuwählen und den API-Aufruf zu senden.  
+
+________________________________________________________________________________________________________________________________
+20. 09.11.2024:
+     - Adjusted: Rückgabetypen im Sandbox mit Hauptsteuerungsmodus angepasst.
+     - Recherchiert über Python Django "static". (könnte später nützlich sein, um Templates zum Refraktoren)
+
+________________________________________________________________________________________________________________________________
+21. 11.11.2024:
+     - Probleme gefunden, wobei Sandboxmodus mit der Params-Selection nicht richtig funktioniert (in Bearbeitung)
 
 

@@ -123,4 +123,12 @@ ________________________________________________________________________________
 21. 11.11.2024:
      - Probleme gefunden, wobei Sandboxmodus mit der Params-Selection nicht richtig funktioniert (in Bearbeitung)
 
+________________________________________________________________________________________________________________________________
+22. 14.12.2024:
+     - Die Datenbank wurde mit detaillierten Beschreibungen für APIs und API-Gruppen überarbeitet.
+     - APIs zur Steuerung der Liveview-Size wurde zum Datenbank hinzugefügt. 
+     - Es wird darüber nachgedacht, wie der Liveview-Status nachverfolgt werden kann (möglicherweise könnte dies später zu einem 
+     Modus-Verfolgungssystem erweitert werden, da wir die aktuellen Kameramodi verfolgen müssten, um zu bestimmen, ob eine API 
+     gesendet werden soll). Eine Methode dafür wurde getestet, indem die Verfolgung über die URL-Parameter erfolgt und diese als 
+     versteckte Eingaben zusammen im API-Form an den Backend-Server gesendet werden.
 

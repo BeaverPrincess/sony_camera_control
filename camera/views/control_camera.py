@@ -53,6 +53,8 @@ class CameraControlView(FormView):
         """
         api_id = form.cleaned_data["action"]
         current_uuid = self.request.POST.get("uuid")
+        ### TO-DO: Handle is live view with live view size
+        is_live_view = form.cleaned_data["isLiveView"]
 
         selected_api = API.objects.get(id=api_id)
         payload, error = construct_api_payload(current_uuid, selected_api)

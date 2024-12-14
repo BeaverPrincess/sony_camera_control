@@ -27,6 +27,7 @@
   <form id="cameraControlForm" method="post" action="{% url 'control_camera' %}">
     {% csrf_token %}
     <input type="hidden" name="uuid" value="{{ current_uuid }}">
+    <input type="hidden" id="id_isLiveView" name="isLiveView" value="0">
     <p>
         {{ form.group.label_tag }} {{ form.group }}
     </p>
@@ -50,6 +51,22 @@
   </div>
 
   <script>
+    function liveViewStatusListener(){
+      const liveViewFormInputSelect = document.getElementById('id_isLiveView');
+
+      liveViewFormInputSelect.addEventListener('change', function(){
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLiveView = urlParams.get('isLiveView');
+        const isLiveViewFormInput = document.getElementById('id_isLiveView');
+        
+        if (isLiveView === '1') {
+          isLiveViewInput.value = '1';
+        } else {
+          isLiveViewInput.value = '0';
+        }
+      });
+    }
+    
     function groupSelectionListener() {
       const groupSelect = document.getElementById('id_group');
       const actionSelect = document.getElementById('id_action');
@@ -169,11 +186,22 @@
         // If response from local server is success and startLiveview is requested, make the container visible
         if (action == 'startLiveview') {
           document.getElementById('liveViewContainer').style.display = 'block';
+          
+          // Added a param to the url to keep track of live view status.
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.set('isLiveView', '1');
+          window.history.replaceState({}, '', currentUrl);
+          
           // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
           document.getElementById('liveViewImage').src = 'http://localhost:8001/liveview?' + new Date().getTime();
         } else if (action == 'stopLiveview' || action == 'stopRecMode') {
           document.getElementById('liveViewContainer').style.display = 'none';
           document.getElementById('liveViewImage').src = '';
+          
+          // Remove the live view param from the url
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.delete('isLiveView');
+          window.history.replaceState({}, '', currentUrl);
         } else {
           alert('Action "' + payload.method + '" executed successfully.');
         }

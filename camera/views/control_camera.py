@@ -55,6 +55,9 @@ class CameraControlView(FormView):
         current_uuid = self.request.POST.get("uuid")
         ### TO-DO: Handle is live view with live view size
         is_live_view = form.cleaned_data["isLiveView"]
+        
+        if int(api_id) == API.objects.get(api_name="startLiveviewWithSize").id and is_live_view:
+            return JsonResponse({"error": "Please turn Live View off first!"})
 
         selected_api = API.objects.get(id=api_id)
         payload, error = construct_api_payload(current_uuid, selected_api)

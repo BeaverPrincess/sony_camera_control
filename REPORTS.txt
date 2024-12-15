@@ -132,3 +132,8 @@ ________________________________________________________________________________
      gesendet werden soll). Eine Methode dafür wurde getestet, indem die Verfolgung über die URL-Parameter erfolgt und diese als 
      versteckte Eingaben zusammen im API-Form an den Backend-Server gesendet werden.
 
+________________________________________________________________________________________________________________________________
+22. 14.12.2024:
+     - Logik von LiveView-Status übertragung wurde angepasst, da es nicht richtig funktioniert hat.
+     - Logik der LiveView-Statusprüfung im Fall einer LiveView-Sizeswechslung wurde implementiert.
+     - LiveView-Frame Api-Gruppe wurde zur DB hinzugefügt, Funktionen um diese Api-Gruppe zu behandeln wurden implementiert. 

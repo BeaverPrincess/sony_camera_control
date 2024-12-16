@@ -65,5 +65,5 @@ class API(models.Model):
 
     def __str__(self):
         if API.objects.filter(api_name=self.api_name).count() > 1:
-            return f"{self.api_name} ({self.description})"  ## Might need to make a new version column for this
+            return f"{self.api_name} ({self.description})"  
         return self.api_name

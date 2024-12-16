@@ -2,7 +2,8 @@ from django.db import models
 
 
 class CameraModes(models.TextChoices):
-  Record = "record", "Record mode"
-  StillShoot = "stillShoot", "Still shooting mode"
-  MovieShoot = "movieShoot", "Movie shooting mode"
+  Record = "isRecord", "Record"
+  StillShoot = "isStillShooting", "Still shooting"
+  LiveView = "isLiveView", "Live View"
+  
   

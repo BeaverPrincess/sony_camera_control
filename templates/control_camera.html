@@ -28,6 +28,9 @@
     {% csrf_token %}
     <input type="hidden" name="uuid" value="{{ current_uuid }}">
     <input type="hidden" id="id_isLiveView" name="isLiveView" value="0">
+    <input type="hidden" id="id_isRecord" name="isRecord" value="0">
+    <input type="hidden" id="id_isStillShooting" name="isStillShooting" value="0">
+
     <p>
         {{ form.group.label_tag }} {{ form.group }}
     </p>
@@ -166,32 +169,32 @@
           alert('Error: ' + data.error);
           return;
         }
+
+        const isLiveViewInput = document.getElementById('id_isLiveView');
+        const isRecordInput = document.getElementById('id_isRecord');
+        const isStillShootingInput = document.getElementById('id_isStillShooting');
+        const liveViewContainer = document.getElementById('liveViewContainer')
+        const liveViewImage = document.getElementById('liveViewImage')
         
+        if (action == 'startRecMode'){
+          isRecordInput.value = 1
+          isStillShootingInput.value = 1 
+        } 
+        else if (action == 'stopRecMode'){
+          isRecordInput.value = 0
+          isStillShootingInput.value = 1
+        }  
         // If response from local server is success and startLiveview is requested, make the container visible
-        if (action == 'startLiveview' || action == 'startLiveviewWithSize') {
-          document.getElementById('liveViewContainer').style.display = 'block';
-          
-          // Added a param to the url to keep track of live view status.
-          const currentUrl = new URL(window.location.href);
-          currentUrl.searchParams.set('isLiveView', '1');
-          window.history.replaceState({}, '', currentUrl);
-
-          const isLiveViewInput = document.getElementById('id_isLiveView');
-          isLiveViewInput.value = '1';
-          
+        else if (action == 'startLiveview' || action == 'startLiveviewWithSize') {
+          liveViewContainer.style.display = 'block';
           // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
-          document.getElementById('liveViewImage').src = 'http://localhost:8001/liveview?' + new Date().getTime();
-        } else if (action == 'stopLiveview' || action == 'stopRecMode') {
-          document.getElementById('liveViewContainer').style.display = 'none';
-          document.getElementById('liveViewImage').src = '';
-          
-          // Remove the live view param from the url
-          const currentUrl = new URL(window.location.href);
-          currentUrl.searchParams.delete('isLiveView');
-          window.history.replaceState({}, '', currentUrl);
-
-          const isLiveViewInput = document.getElementById('id_isLiveView');
-          isLiveViewInput.value = '0';
+          liveViewImage.src = 'http://localhost:8001/liveview?' + new Date().getTime();
+          isLiveViewInput.value = 1;
+        } 
+        else if (action == 'stopLiveview' || action == 'stopRecMode') {
+          liveViewContainer.style.display = 'none';
+          liveViewImage.src = '';
+          isLiveViewInput.value = 0;
         } else {
           alert('Action "' + payload.method + '" executed successfully.');
         }

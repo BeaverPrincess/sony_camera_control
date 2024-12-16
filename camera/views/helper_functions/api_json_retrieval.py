@@ -29,7 +29,7 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
     }
 
     if params:
-        params = [_convert_param(param) for param in params.split(",")]
+        params = [_convert_param(param) for param in params.split(";")]
         if len(params) > 1:
             return payload, params
         json_object["params"] = params

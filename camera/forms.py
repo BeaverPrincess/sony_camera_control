@@ -23,6 +23,8 @@ class CameraControlForm(forms.Form):
     group = forms.ChoiceField(label="API Group")
     action = forms.ChoiceField(label="Camera Action")
     isLiveView = forms.BooleanField(required=False, widget=forms.HiddenInput())
+    isRecord = forms.BooleanField(required=False, widget=forms.HiddenInput())
+    isStillShooting = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

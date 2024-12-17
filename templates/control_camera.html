@@ -57,12 +57,16 @@
     function groupSelectionListener() {
       const groupSelect = document.getElementById('id_group');
       const actionSelect = document.getElementById('id_action');
+      const paramsContainer = document.getElementById('paramsContainer');
+      const paramSelection = document.getElementById('paramsSelect');
 
       // Listen for changes on the group selection
       groupSelect.addEventListener('change', function() {
           const groupId = this.value;
           // Clear the api selection field (for when switching between groups)
           actionSelect.innerHTML = '';
+          paramSelection.innerHTML = '';
+          paramsContainer.style.display = 'none';
 
           if (groupId) {
               // Fetch the apis for the selected group
@@ -85,6 +89,11 @@
                       console.error('Error fetching APIs:', error);
                   });
           }
+      });
+
+      actionSelect.addEventListener('change', function(){
+        paramSelection.innerHTML = '';
+        paramsContainer.style.display = 'none';
       });
     }
 
@@ -109,11 +118,12 @@
             alert('Error: ' + data.error);
           } else if (data.params){
             const { action_list_url, payload: payloadData, action } = data.payload;
-            const container = document.getElementById('paramsContainer');
+            const paramsContainer = document.getElementById('paramsContainer');
             const paramSelection = document.getElementById('paramsSelect');
             const confirmButton = document.getElementById('paramsConfirmButton');
 
             // Populate the select options
+            paramSelection.innerHTML = '';
             data.params.forEach(param => {
               const option = document.createElement('option');
               option.value = param;
@@ -121,18 +131,18 @@
               paramSelection.appendChild(option);
             });
             // Unhide the container
-            container.style.display = 'block'; 
+            paramsContainer.style.display = 'block'; 
 
             confirmButton.onclick = function() {
               const selectedParam = paramSelection.value;
-              payloadData['params'] = [selectedParam];
+              payloadData['params'] = selectedParam;
               sendRequestToLocalServer(
                 action_list_url,
                 payloadData,
                 action
               );
 
-              container.style.display = 'none';
+              paramsContainer.style.display = 'none';
               paramSelection.innerHTML = '';
             };
           } else {

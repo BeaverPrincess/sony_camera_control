@@ -143,3 +143,10 @@ ________________________________________________________________________________
      - Erforderliche Modussystem der APIs im DB wurden nachbearbeitet.
      - Ein Extra-Prüfung nach dem erforderlichen Modus wurde hinzugefügt, wenn ein API angefordert wird.
      - Zoom Apis-Gruppe wurde zur DB hinzugefügt.
+
+_______________________________________________________________________________________________________________________________
+24. 17.12.2024:
+     - Api-Params-Optionen werden nun nach jeder Api-Wechslung, Api-Gruppewechslung und Api-Paramswechslung gelöscht (und 
+     entsprechend versteckt).
+     - Logik zur Behandlung der Api-Params wurde angepasst, um mehr params Variante zu behandeln.
+     - Zoom Setting Api-Gruppe wurde zur DB hinzugefügt.

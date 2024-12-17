@@ -29,12 +29,13 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
     }
 
     if params:
-        params = [_convert_param(param) for param in params.split(";")]
-        if len(params) > 1:
+        if ';' in params:
+            params = [_convert_param(param) for param in params.split(";")]
             return payload, params
-        json_object["params"] = params
+        else:    
+            json_object["params"] = params
     else:
-        json_object["params"] = []
+        json_object["params"] = ""
 
     # Return the action list URL and the constructed JSON payload
     return payload, None

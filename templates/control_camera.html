@@ -50,122 +50,146 @@
   <div id="liveViewContainer">
     <h2>Live View</h2>
     <img id="liveViewImage" src="" alt="Live View Stream">
-    <h1>LiveView Window</h1>
   </div>
 
+  <h3 id="localServerResponse" style="display: none;"></h3>
+
   <script>
-    function groupSelectionListener() {
+    function init() {
+      initGroupSelectionListener();
+      initFormSubmissionListener();
+    }
+
+    // Handle api group selection
+    function initGroupSelectionListener() {
       const groupSelect = document.getElementById('id_group');
       const actionSelect = document.getElementById('id_action');
       const paramsContainer = document.getElementById('paramsContainer');
       const paramSelection = document.getElementById('paramsSelect');
 
-      // Listen for changes on the group selection
       groupSelect.addEventListener('change', function() {
-          const groupId = this.value;
-          // Clear the api selection field (for when switching between groups)
-          actionSelect.innerHTML = '';
-          paramSelection.innerHTML = '';
-          paramsContainer.style.display = 'none';
-
-          if (groupId) {
-              // Fetch the apis for the selected group
-              fetch("{% url 'api_list' %}?group_id=" + groupId)
-                  .then(response => response.json())
-                  .then(data => {
-                      if (data.error) {
-                          console.error('Error:', data.error);
-                      } else {
-                          // Populate api choices
-                          data.apis.forEach(function(api) {
-                              const apiOption = document.createElement('option');
-                              apiOption.value = api.id;
-                              apiOption.textContent = api.name;
-                              actionSelect.appendChild(apiOption);
-                          });
-                      }
-                  })
-                  .catch((error) => {
-                      console.error('Error fetching APIs:', error);
-                  });
-          }
+        handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer);
       });
 
-      actionSelect.addEventListener('change', function(){
-        paramSelection.innerHTML = '';
-        paramsContainer.style.display = 'none';
+      actionSelect.addEventListener('change', function() {
+        resetParams(paramSelection, paramsContainer);
       });
     }
 
-    function formSubmissionListener() {
-      document.getElementById('cameraControlForm').addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent default form submission
+    // Handle actions upon change api group
+    function handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer) {
+      const groupId = groupSelect.value;
 
-        const formData = new FormData(this);
-        const formAction = this.getAttribute('action');
+      // Reset fields params options field
+      actionSelect.innerHTML = '';
+      resetParams(paramSelection, paramsContainer);
 
-        // Send the form data to Django server
-        fetch(formAction, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
+      // Fetch the apis of the newly choosen group
+      if (groupId) {
+        fetchApisForGroup(groupId, actionSelect);
+      }
+    }
+
+    // Handle the fetching of apis
+    function fetchApisForGroup(groupId, actionSelect) {
+      fetch("{% url 'api_list' %}?group_id=" + groupId)
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            alert('Error: ' + data.error);
-          } else if (data.params){
-            const { action_list_url, payload: payloadData, action } = data.payload;
-            const paramsContainer = document.getElementById('paramsContainer');
-            const paramSelection = document.getElementById('paramsSelect');
-            const confirmButton = document.getElementById('paramsConfirmButton');
-
-            // Populate the select options
-            paramSelection.innerHTML = '';
-            data.params.forEach(param => {
-              const option = document.createElement('option');
-              option.value = param;
-              option.textContent = param;
-              paramSelection.appendChild(option);
-            });
-            // Unhide the container
-            paramsContainer.style.display = 'block'; 
-
-            confirmButton.onclick = function() {
-              const selectedParam = paramSelection.value;
-              payloadData['params'] = selectedParam;
-              sendRequestToLocalServer(
-                action_list_url,
-                payloadData,
-                action
-              );
-
-              paramsContainer.style.display = 'none';
-              paramSelection.innerHTML = '';
-            };
+            console.error('Error:', data.error);
           } else {
-            // Send the response data to the local server (Port 8001) for camera control
-            sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+            populateActionSelect(actionSelect, data.apis);
           }
         })
         .catch((error) => {
-          console.error('Error:', error);
+          console.error('Error fetching APIs:', error);
         });
+    }
+
+    // Populate api options field with fetched apis
+    function populateActionSelect(actionSelect, apis) {
+      apis.forEach(function(api) {
+        const apiOption = document.createElement('option');
+        apiOption.value = api.id;
+        apiOption.textContent = api.name;
+        actionSelect.appendChild(apiOption);
       });
     }
 
-    groupSelectionListener();
-    formSubmissionListener();
+    function resetParams(paramSelection, paramsContainer) {
+      paramSelection.innerHTML = '';
+      paramsContainer.style.display = 'none';
+    }
 
+    // Api-Form submission logic
+    function initFormSubmissionListener() {
+      const form = document.getElementById('cameraControlForm');
+      form.addEventListener('submit', handleFormSubmission);
+    }
+
+    function handleFormSubmission(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const formAction = form.getAttribute('action');
+      const localServerResponse = document.getElementById('localServerResponse')
+
+      localServerResponse.style.display = 'none'
+
+      fetch(formAction, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert('Error: ' + data.error);
+        } else if (data.params) {
+          handleParamsResponse(data);
+        } else {
+          sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    }
+
+    // List the params received from Django server as options and handle the request sending to the local server.
+    function handleParamsResponse(data) {
+      const { action_list_url, payload: payloadData, action } = data.payload;
+      const paramsContainer = document.getElementById('paramsContainer');
+      const paramSelection = document.getElementById('paramsSelect');
+      const confirmButton = document.getElementById('paramsConfirmButton');
+
+      // Populate the select options
+      paramSelection.innerHTML = '';
+      data.params.forEach(param => {
+        const option = document.createElement('option');
+        option.value = param;
+        option.textContent = param;
+        paramSelection.appendChild(option);
+      });
+
+      // Unhide the container
+      paramsContainer.style.display = 'block';
+
+      confirmButton.onclick = function() {
+        const selectedParam = paramSelection.value;
+        payloadData['params'] = selectedParam;
+
+        sendRequestToLocalServer(action_list_url, payloadData, action);
+        paramsContainer.style.display = 'none';
+        paramSelection.innerHTML = '';
+      };
+    }
+
+    // Send request to local server
     function sendRequestToLocalServer(actionListUrl, payload, action) {
-      // Send API request to the local server running on port 8001
       fetch('http://localhost:8001/camera_control', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           'action': action,
           'action_list_url': actionListUrl,
@@ -173,46 +197,53 @@
         })
       })
       .then(response => response.json())
-      .then(data => {
-        console.log('Camera Response:', data);
-        if (data.error) {
-          alert('Error: ' + data.error);
-          return;
-        }
+      .then(data => handleLocalServerResponse(data, action, payload))
+      .catch((error) => {
+        console.error('Error communicating with local server:', error);
+      });
+    }
+    
+    // Handle response from local server
+    function handleLocalServerResponse(data, action, payload) {
+      const localServerResponse = document.getElementById('localServerResponse')
+      const response = ''
+      console.log('Camera Response:', data);
 
+      if (data.error) {
+        alert('Error: ' + data.error);
+        response = 'Error: \n' + data
+      } else {
+        response = 'Action "' + payload.method + '" executed successfully'
         const isLiveViewInput = document.getElementById('id_isLiveView');
         const isRecordInput = document.getElementById('id_isRecord');
         const isStillShootingInput = document.getElementById('id_isStillShooting');
-        const liveViewContainer = document.getElementById('liveViewContainer')
-        const liveViewImage = document.getElementById('liveViewImage')
-        
-        if (action == 'startRecMode'){
-          isRecordInput.value = 1
-          isStillShootingInput.value = 1 
-        } 
-        else if (action == 'stopRecMode'){
-          isRecordInput.value = 0
-          isStillShootingInput.value = 1
-        }  
-        // If response from local server is success and startLiveview is requested, make the container visible
-        else if (action == 'startLiveview' || action == 'startLiveviewWithSize') {
+        const liveViewContainer = document.getElementById('liveViewContainer');
+        const liveViewImage = document.getElementById('liveViewImage');
+
+        // Update form inputs based on successful action and adjust html data.
+        if (action == 'startRecMode') {
+          isRecordInput.value = 1;
+          isStillShootingInput.value = 1;
+        } else if (action == 'stopRecMode') {
+          isRecordInput.value = 0;
+          isStillShootingInput.value = 1;
+        } else if (action == 'startLiveview' || action == 'startLiveviewWithSize') {
           liveViewContainer.style.display = 'block';
-          // Added /liveview endpoint to fetch the stream source -> append timestamp to prevent browser caching.
           liveViewImage.src = 'http://localhost:8001/liveview?' + new Date().getTime();
           isLiveViewInput.value = 1;
-        } 
-        else if (action == 'stopLiveview' || action == 'stopRecMode') {
+        } else if (action == 'stopLiveview' || action == 'stopRecMode') {
           liveViewContainer.style.display = 'none';
           liveViewImage.src = '';
           isLiveViewInput.value = 0;
         } else {
           alert('Action "' + payload.method + '" executed successfully.');
         }
-      })
-      .catch((error) => {
-        console.error('Error communicating with local server:', error);
-      });
+      }
+      localServerResponse.textContent = 'Action executed successfully.\n'+data
     }
+
+    // Init the listeners when the page loads
+    init();
   </script>
 </body>
 </html>

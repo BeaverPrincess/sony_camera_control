@@ -148,7 +148,7 @@
       .then(response => response.json())
       .then(data => {
         if (data.error) { // If Error field is in the reponse -> error 
-          alert('Error: ' + data.error);
+          setAlert('❌ Error: ' + data.error)
         } else if (data.params) {
           if (data.payload.action == 'setTouchAFPosition'){
             setManualParamInput(data.params, (inputValues) => {
@@ -192,6 +192,7 @@
         for (let i = 1; i <= numberOfInputs; i++) {
           const inputElement = document.getElementById(`input${i}`);
           console.log(inputElement)
+          
           if (inputElement) {
             const inputValueStr = inputElement.value;
             let inputValue = parseFloat(inputValueStr);
@@ -203,6 +204,8 @@
                 }
             }
             inputValues.push(inputValue);
+          }else{
+            setAlert("Please fill in the "+i+". input first.")
           }
         }
         console.log(inputValues)
@@ -263,15 +266,13 @@
     
     // Handle response from local server
     function handleLocalServerResponse(data, action, payload) {
-      const localServerResponse = document.getElementById('localServerResponse')
       let response = ''
       console.log('Camera Response:', data);
 
       if (data.error) {
-        alert('Error: ' + data.error);
-        response = 'Error: \n' + data
+        response = '❌ Error: \n' + data.error
       } else {
-        response = 'Action "' + payload.method + '" executed successfully'
+        response = '✅ Action "' + payload.method + '" executed successfully.\n'+data.result
         const isLiveViewInput = document.getElementById('id_isLiveView');
         const isRecordInput = document.getElementById('id_isRecord');
         const isStillShootingInput = document.getElementById('id_isStillShooting');
@@ -297,7 +298,13 @@
           alert('Action "' + payload.method + '" executed successfully.');
         }
       }
-      localServerResponse.textContent = 'Action executed successfully.\n'+data
+      setAlert(response)
+    }
+
+    function setAlert(alertText ){
+      const localServerResponse = document.getElementById('localServerResponse')
+      localServerResponse.innerHTML = alertText.replace(/\n/g, '<br>')
+      localServerResponse.style.display = "block"
     }
 
     // Init the listeners when the page loads

@@ -1,5 +1,4 @@
 from camera.models import CameraInfo, API
-import json
 from typing import Tuple
 
 

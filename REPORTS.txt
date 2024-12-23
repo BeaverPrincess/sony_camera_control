@@ -157,4 +157,12 @@ ________________________________________________________________________________
      - Half-press Shutter, Touch AF Postion Api-Gruppen wurden zur DB hinzugefügt.
      - Versuche gerade, der Response des lokalen Servers auf dem Template zu zeigen (in Bearbeitung)
      - Arbeite an der Logik zur Erweiterung des API-Params-Übergabesystems, da das aktuelle System für AF-Position-APIs nicht 
-     ausreicht-
+     ausreicht.
+
+_______________________________________________________________________________________________________________________________
+27. 23.12.2024:
+     - Problem wobei Responses aus dem Local Service nach dem Refraktor nicht richtig behandelt.
+     - Logik für die Eingabe und Übergabe manueller Eingabeparameter wurden vervollständigt.
+     - Alerts-Anzeigesystem des FEs wurde angepasst, schnelles Fix von Boolean-Paramsübertragung.
+     - Self-timer, Exposure mode Api-Gruppen wurde zur DB hinzugefügt.
+

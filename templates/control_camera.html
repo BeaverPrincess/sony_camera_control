@@ -148,7 +148,7 @@
       .then(response => response.json())
       .then(data => {
         if (data.error) { // If Error field is in the reponse -> error 
-          setAlert('❌ Error: ' + data.error)
+          setAlert('❌ Error: ' + JSON.stringify(data.error, null, 2))
         } else if (data.params) {
           if (data.payload.action == 'setTouchAFPosition'){
             setManualParamInput(data.params, (inputValues) => {
@@ -270,9 +270,9 @@
       console.log('Camera Response:', data);
 
       if (data.error) {
-        response = '❌ Error: \n' + data.error
+        response = '❌ Error: \n' + JSON.stringify(data.error, null, 2);
       } else {
-        response = '✅ Action "' + payload.method + '" executed successfully.\n'+data.result
+        response = '✅ Action "' + payload.method + '" executed successfully.\n'+JSON.stringify(data.result, null, 2);
         const isLiveViewInput = document.getElementById('id_isLiveView');
         const isRecordInput = document.getElementById('id_isRecord');
         const isStillShootingInput = document.getElementById('id_isStillShooting');

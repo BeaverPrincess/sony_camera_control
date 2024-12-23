@@ -147,11 +147,14 @@
       })
       .then(response => response.json())
       .then(data => {
-        if (data.error) {
+        if (data.error) { // If Error field is in the reponse -> error 
           alert('Error: ' + data.error);
         } else if (data.params) {
           if (data.payload.action == 'setTouchAFPosition'){
-            setManualParamInput(data.params);
+            setManualParamInput(data.params, (inputValues) => {
+              data.payload.payload["params"] = inputValues
+              sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+            });
           } else {
             handleParamsResponse(data);
           }
@@ -164,16 +167,16 @@
       });
     }
 
-    function setManualParamInput(numberOfInputs){
+    function setManualParamInput(numberOfInputs, callback) {
       const paramsInputContainer = document.getElementById('paramsInputContainer');
       paramsInputContainer.innerHTML = '';
 
-      for (let i = 1; i <= numberOfInputs; i++){
+      for (let i = 1; i <= numberOfInputs; i++) {
         const paramInput = document.createElement('input');
         paramInput.type = 'number';
         paramInput.id = `input${i}`;
         paramInput.step = '0.1';
-        paramInput.min = '0'; 
+        paramInput.min = '0';
         paramInput.max = '100';
 
         paramsInputContainer.appendChild(paramInput);
@@ -182,13 +185,33 @@
       const submitButton = document.createElement('button');
       submitButton.textContent = 'Submit';
       submitButton.type = 'button';
-      submitButton.addEventListener('click', handleSubmit);
+
+    // Fetching inputs and round them to the first decimal if needed
+      submitButton.addEventListener('click', function () {
+        const inputValues = [];
+        for (let i = 1; i <= numberOfInputs; i++) {
+          const inputElement = document.getElementById(`input${i}`);
+          console.log(inputElement)
+          if (inputElement) {
+            const inputValueStr = inputElement.value;
+            let inputValue = parseFloat(inputValueStr);
+
+            if (inputValueStr.includes('.')) {
+                const decimalPart = inputValueStr.split('.')[1];
+                if (decimalPart.length > 1) {
+                    inputValue = Math.round(inputValue * 10) / 10;
+                }
+            }
+            inputValues.push(inputValue);
+          }
+        }
+        console.log(inputValues)
+        callback(inputValues);
+        paramsInputContainer.innerHTML = '';
+      });
+      
 
       paramsInputContainer.appendChild(submitButton);
-    }
-      
-    function handleSubmit(){
-      console.log("Submiited")
     }
     
     // List the params received from Django server as options and handle the request sending to the local server.

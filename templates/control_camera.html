@@ -151,7 +151,7 @@
           alert('Error: ' + data.error);
         } else if (data.params) {
           if (data.payload.action == 'setTouchAFPosition'){
-            setManualParamInput(data.error);
+            setManualParamInput(data.params);
           } else {
             handleParamsResponse(data);
           }
@@ -241,7 +241,7 @@
     // Handle response from local server
     function handleLocalServerResponse(data, action, payload) {
       const localServerResponse = document.getElementById('localServerResponse')
-      const response = ''
+      let response = ''
       console.log('Camera Response:', data);
 
       if (data.error) {

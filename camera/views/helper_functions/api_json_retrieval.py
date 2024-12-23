@@ -29,10 +29,15 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
     }
 
     if params:
+        # ; indicates user needs to choose between the parameters
         if ';' in params:
             params = [_convert_param(param) for param in params.split(";")]
             return payload, params
-        else:    
+        # pure number indicates a manual input is required, the number is the number of inputs needed.
+        elif isinstance(_convert_param(params), int):    
+            json_object["params"] = _convert_param(params)
+            return payload, params
+        else:
             json_object["params"] = params
     else:
         json_object["params"] = ""

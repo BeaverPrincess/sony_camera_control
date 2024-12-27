@@ -167,10 +167,16 @@ ________________________________________________________________________________
      - Self-timer, Exposure mode Api-Gruppen wurde zur DB hinzugefügt.
 
 _______________________________________________________________________________________________________________________________
-27. 24.12.2024:
+28. 24.12.2024:
      - Self-timer, Exposure mode Apis wurden erfolgreich implementiert.
      - Focus mode, Exposure compensation, F number, Shutter speed und ISO speed rate API-Gruppen wurden zur DB hinzugefügt bzw.
      implementiert.
-     - White balance API-Gruppe wurde zur DB hinzugefügt.  
+     - White balance API-Gruppe wurde zur DB hinzugefügt.
 
-     TO-DO: Implement white balance apis, will need new logic for handling params.
+_______________________________________________________________________________________________________________________________
+29. 27.12.2024:
+     - Verbesserung des Params-Systems noch in Bearbeitung.
+     - Die Json_Params Werte der APIs in DB wurde zum neuen Params-System angepasst (in Bearbeitung)
+
+     TO-DO:    - Complete new logic for handling params (input params, white balance apis aka input and choose).
+               - Repopulate params for F number and Shutter speed.

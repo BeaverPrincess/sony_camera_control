@@ -99,9 +99,11 @@
       fetch("{% url 'api_list' %}?group_id=" + groupId)
         .then(response => response.json())
         .then(data => {
+          console.log("Reached fetch api")
           if (data.error) {
             console.error('Error:', data.error);
           } else {
+            console.log("This the damn data:", data)
             populateActionSelect(actionSelect, data.apis);
           }
         })
@@ -109,7 +111,7 @@
           console.error('Error fetching APIs:', error);
         });
     }
-
+  
     // Populate api options field with fetched apis
     function populateActionSelect(actionSelect, apis) {
       apis.forEach(function(api) {

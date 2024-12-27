@@ -1,3 +1,4 @@
+import json
 from camera.models import CameraInfo, API
 from typing import Tuple
 
@@ -28,19 +29,27 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
     }
 
     if params:
-        # ; indicates user needs to choose between the parameters
-        if ";" in params:
-            if api.api_name == "setIsoSpeedRate":
-                params = params.split(";")
-                return payload, params
-            params = [_convert_param(param) for param in params.split(";")]
-            return payload, params
-        # pure number indicates a manual input is required, the number is the number of inputs needed.
-        elif isinstance(_convert_param(params), int):
-            json_object["params"] = _convert_param(params)
-            return payload, params
-        else:
-            json_object["params"] = params
+        params = json.loads(params)
+        payload["type"] = params["type"]
+        param_options = params["params"]
+
+        if len(param_options) > 1:
+            return payload, param_options
+
+        json_object["params"] = param_options[0]
+        # # ; indicates user needs to choose between the parameters
+        # if ";" in params:
+        #     if api.api_name == "setIsoSpeedRate":
+        #         params = params.split(";")
+        #         return payload, params
+        #     params = [_convert_param(param) for param in params.split(";")]
+        #     return payload, params
+        # # pure number indicates a manual input is required, the number is the number of inputs needed.
+        # elif isinstance(_convert_param(params), int):
+        #     json_object["params"] = _convert_param(params)
+        #     return payload, params
+        # else:
+        #     json_object["params"] = params
     else:
         json_object["params"] = ""
 

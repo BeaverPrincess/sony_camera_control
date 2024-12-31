@@ -100,6 +100,7 @@
         .then(response => response.json())
         .then(data => {
           console.log("Reached fetch api")
+          console.log(data)
           if (data.error) {
             console.error('Error:', data.error);
           } else {
@@ -228,10 +229,14 @@
 
       // Populate the select options
       paramSelection.innerHTML = '';
+
+      console.log("These are the params:")
+      console.log(data.params)
+      
       data.params.forEach(param => {
         const option = document.createElement('option');
-        option.value = param;
-        option.textContent = param;
+        option.value = JSON.stringify(param);
+        option.textContent = JSON.stringify(param);
         paramSelection.appendChild(option);
       });
 

@@ -178,5 +178,14 @@ ________________________________________________________________________________
      - Verbesserung des Params-Systems noch in Bearbeitung.
      - Die Json_Params Werte der APIs in DB wurde zum neuen Params-System angepasst (in Bearbeitung)
 
-     TO-DO:    - Complete new logic for handling params (input params, white balance apis aka input and choose).
+_______________________________________________________________________________________________________________________________
+30. 01.01.2025:
+     - Weite gearbeitet an das neue Params-System.
+
+_______________________________________________________________________________________________________________________________
+31. 02.01.2025:
+     - Das neue Params-System ist nun vollständigt.
+     - Existierte Apis in DB wurden mit dem neuen Params-System angepasst.   
+
+     TO-DO:    - Implement white balance apis aka input/choose combi.
                - Repopulate params for F number and Shutter speed.

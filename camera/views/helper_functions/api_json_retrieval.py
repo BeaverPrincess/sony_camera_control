@@ -32,52 +32,14 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
         params = json.loads(params)
         payload["type"] = params["type"]
         param_options = params["params"]
-        
-        if len(param_options) == 1 and len(param_options[0]) == 1:
-            json_object["params"] = param_options[0]
-        else:
-            params_dict = {
-                'type': params["type"],
-                'params': param_options
-            }
-            return payload, params_dict
 
-        # # ; indicates user needs to choose between the parameters
-        # if ";" in params:
-        #     if api.api_name == "setIsoSpeedRate":
-        #         params = params.split(";")
-        #         return payload, params
-        #     params = [_convert_param(param) for param in params.split(";")]
-        #     return payload, params
-        # # pure number indicates a manual input is required, the number is the number of inputs needed.
-        # elif isinstance(_convert_param(params), int):
-        #     json_object["params"] = _convert_param(params)
-        #     return payload, params
-        # else:
-        #     json_object["params"] = params
+        if len(param_options) == 1 and len(param_options[0]) == 1:
+            json_object["params"] = param_options[0][0]
+        else:
+            params_dict = {"type": params["type"], "params": param_options}
+            return payload, params_dict
     else:
         json_object["params"] = ""
 
     # Return the action list URL and the constructed JSON payload
     return payload, None
-
-
-def _convert_param(param: str) -> str | int | bool:
-    """
-    API Params are saved in DB as string but they can either be str, int or bool depending on specific API.
-    Convert a param into its actual type.
-    """
-    param = param.strip()
-    if param.lower() == "true" or param.lower() == "false":
-        return param.lower()
-
-    try:
-        return int(param)
-    except ValueError:
-        pass
-
-    try:
-        return float(param)
-    except ValueError:
-        pass
-    return param

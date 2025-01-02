@@ -47,9 +47,7 @@
     <button id="paramsConfirmButton" type="button">Confirm</button>
   </div>
 
-  <div id="paramsInputContainer">
-
-  </div>
+  <div id="paramsInputContainer"></div>
 
   <div id="liveViewContainer">
     <h2>Live View</h2>
@@ -70,23 +68,24 @@
       const actionSelect = document.getElementById('id_action');
       const paramsContainer = document.getElementById('paramsContainer');
       const paramSelection = document.getElementById('paramsSelect');
+      const paramsInputContainer = document.getElementById('paramsInputContainer');
 
       groupSelect.addEventListener('change', function() {
-        handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer);
+        handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer, paramsInputContainer);
       });
 
       actionSelect.addEventListener('change', function() {
-        resetParams(paramSelection, paramsContainer);
+        resetParams(paramSelection, paramsContainer, paramsInputContainer);
       });
     }
 
     // Handle actions upon change api group
-    function handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer) {
+    function handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer, paramsInputContainer) {
       const groupId = groupSelect.value;
 
       // Reset fields params options field
       actionSelect.innerHTML = '';
-      resetParams(paramSelection, paramsContainer);
+      resetParams(paramSelection, paramsContainer, paramsInputContainer);
 
       // Fetch the apis of the newly choosen group
       if (groupId) {
@@ -121,9 +120,10 @@
       });
     }
 
-    function resetParams(paramSelection, paramsContainer) {
+    function resetParams(paramSelection, paramsContainer, paramsInputContainer) {
       paramSelection.innerHTML = '';
       paramsContainer.style.display = 'none';
+      paramsInputContainer.innerHTML = '';
     }
 
     // Api-Form submission logic

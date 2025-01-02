@@ -99,8 +99,6 @@
       fetch("{% url 'api_list' %}?group_id=" + groupId)
         .then(response => response.json())
         .then(data => {
-          console.log("Reached fetch api")
-          console.log(data)
           if (data.error) {
             console.error('Error:', data.error);
           } else {
@@ -150,17 +148,30 @@
       })
       .then(response => response.json())
       .then(data => {
+        console.log("Data whole object: "+JSON.stringify(data, null, 2))
         if (data.error) { // If Error field is in the reponse -> error 
           setAlert('❌ Error: ' + JSON.stringify(data.error, null, 2))
         } else if (data.params) {
-          if (data.payload.action == 'setTouchAFPosition'){
-            setManualParamInput(data.params, (inputValues) => {
-              data.payload.payload["params"] = inputValues
-              sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
-            });
-          } else {
-            handleParamsResponse(data);
-          }
+            let params_selection_types = data.params.type
+            
+            if (params_selection_types.length == 1){ 
+              let params_selection_type = params_selection_types[0] 
+              
+              if (params_selection_type == 'choose'){ // Case User only needs to choose 1 param from existing ones
+                handleChooseParamsResponse(data); 
+              } else if(params_selection_type == 'input') { // case User only needs to input params 
+                handleInputParamsResponse(data)
+              } 
+            }
+      
+          // if (data.payload.action == 'setTouchAFPosition'){
+          //   setManualParamInput(data.params, (inputValues) => {
+          //     data.payload.payload["params"] = inputValues
+          //     sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+          //   });
+          // } else {
+          //   handleChooseParamsResponse(data);
+          // }
         } else {
           sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
         }
@@ -170,17 +181,27 @@
       });
     }
 
-    function setManualParamInput(numberOfInputs, callback) {
+    function handleInputParamsResponse(data){
+      input_configs = data.params.params
+      console.log("Input configs: "+data.params.params)
+      setManualParamInput(input_configs, (inputValues) => {
+        data.payload.payload["params"] = inputValues
+        sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+      });
+    }
+
+    function setManualParamInput(input_configs, callback) {
       const paramsInputContainer = document.getElementById('paramsInputContainer');
       paramsInputContainer.innerHTML = '';
+      const numberOfInputs = input_configs.length
 
-      for (let i = 1; i <= numberOfInputs; i++) {
+      for (let i = 0; i < numberOfInputs; i++) {
         const paramInput = document.createElement('input');
         paramInput.type = 'number';
         paramInput.id = `input${i}`;
-        paramInput.step = '0.1';
-        paramInput.min = '0';
-        paramInput.max = '100';
+        paramInput.step = input_configs[i][2];
+        paramInput.min = input_configs[i][0];
+        paramInput.max = input_configs[i][1];
 
         paramsInputContainer.appendChild(paramInput);
       }
@@ -221,7 +242,7 @@
     }
     
     // List the params received from Django server as options and handle the request sending to the local server.
-    function handleParamsResponse(data) {
+    function handleChooseParamsResponse(data) {
       const { action_list_url, payload: payloadData, action } = data.payload;
       const paramsContainer = document.getElementById('paramsContainer');
       const paramSelection = document.getElementById('paramsSelect');
@@ -230,15 +251,16 @@
       // Populate the select options
       paramSelection.innerHTML = '';
 
-      console.log("These are the params:")
-      console.log(data.params)
-      
-      data.params.forEach(param => {
-        const option = document.createElement('option');
-        option.value = JSON.stringify(param);
-        option.textContent = JSON.stringify(param);
-        paramSelection.appendChild(option);
-      });
+      choose_sets = data.params.params 
+
+      for (let i = 0; i < choose_sets.length; i++){
+        choose_sets[i].forEach(param => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify(param);
+          option.textContent = JSON.stringify(param);
+          paramSelection.appendChild(option);
+        });
+      }
 
       // Unhide the container
       paramsContainer.style.display = 'block';

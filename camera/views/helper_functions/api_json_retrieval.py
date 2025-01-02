@@ -32,11 +32,16 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
         params = json.loads(params)
         payload["type"] = params["type"]
         param_options = params["params"]
+        
+        if len(param_options) == 1 and len(param_options[0]) == 1:
+            json_object["params"] = param_options[0]
+        else:
+            params_dict = {
+                'type': params["type"],
+                'params': param_options
+            }
+            return payload, params_dict
 
-        if len(param_options) > 1:
-            return payload, param_options
-
-        json_object["params"] = param_options[0]
         # # ; indicates user needs to choose between the parameters
         # if ";" in params:
         #     if api.api_name == "setIsoSpeedRate":

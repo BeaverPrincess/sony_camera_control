@@ -81,7 +81,7 @@ class CameraControlView(FormView):
         if payload and error:
             return JsonResponse({"payload": payload, "params": error})
 
-        # No param
+        # No param or 1 param only
         return JsonResponse({"payload": payload})
 
     def _validate_action_and_current_mode(self, selected_api: API) -> bool:

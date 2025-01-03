@@ -190,6 +190,15 @@ ________________________________________________________________________________
 _______________________________________________________________________________________________________________________________
 32. 03.01.2025:
      - Bugs vom neuen System wurden gefunden.
+     - Bugs beim Zooming APIs wurden gefunden und behoben, die zwei seperaten APIs von Zoom wurden zu einem einzigen vereinfacht.
+     - Logic für WhiteBalance APIs wurde implementiert.
+     - Code Teile im Local Service, die redundant geworden wegen dem neuen Param-System wurde gelöscht, weitere Anpassungen admin 
+     Param-System.
+     - Sonderfall: String-Konvertierungslogik für setIsoSpeedRate Api.
+     - Program Shift Api wurde in DB hinzugefügt. 
 
-     TO-DO:    - Implement white balance apis aka input/choose combi.
+     TO-DO:    - Test/Implement program shift params then adjust in DB 
                - Repopulate params for F number and Shutter speed.
+               - Get the rest APis in DB, new System should now be sufficent.
+               - Create a function to handle general mix params requirements 
+               (optional since no API currently used it but might be usefull if the project ever to extend)

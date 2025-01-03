@@ -325,7 +325,10 @@
 
     // Send request to local server
     function sendRequestToLocalServer(actionListUrl, payload, action) {
-      console.log("sendRequestToLocalServer triggered. "+actionListUrl+payload+action)
+      if (action == "setIsoSpeedRate"){
+        payload.params[0] = String(payload.params[0])
+      }
+      console.log("Payload to be sent:", payload)
 
       fetch('http://localhost:8001/camera_control', {
         method: 'POST',

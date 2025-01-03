@@ -180,12 +180,16 @@ ________________________________________________________________________________
 
 _______________________________________________________________________________________________________________________________
 30. 01.01.2025:
-     - Weite gearbeitet an das neue Params-System.
+     - Weite gearbeitet am neuen Params-System.
 
 _______________________________________________________________________________________________________________________________
 31. 02.01.2025:
      - Das neue Params-System ist nun vollständigt.
-     - Existierte Apis in DB wurden mit dem neuen Params-System angepasst.   
+     - Existierte Apis in DB wurden mit dem neuen Params-System angepasst.
+
+_______________________________________________________________________________________________________________________________
+32. 03.01.2025:
+     - Bugs vom neuen System wurden gefunden.
 
      TO-DO:    - Implement white balance apis aka input/choose combi.
                - Repopulate params for F number and Shutter speed.

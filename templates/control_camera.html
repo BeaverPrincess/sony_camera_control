@@ -42,8 +42,6 @@
 
   <!-- Container for params dropbox -->
   <div id="paramsContainer" style="display: none;">
-    <label for="paramsSelect">Please select a parameter: </label>
-    <select id="paramsSelect"></select>
     <button id="paramsConfirmButton" type="button">Confirm</button>
   </div>
 
@@ -67,25 +65,24 @@
       const groupSelect = document.getElementById('id_group');
       const actionSelect = document.getElementById('id_action');
       const paramsContainer = document.getElementById('paramsContainer');
-      const paramSelection = document.getElementById('paramsSelect');
       const paramsInputContainer = document.getElementById('paramsInputContainer');
 
       groupSelect.addEventListener('change', function() {
-        handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer, paramsInputContainer);
+        handleGroupChange(groupSelect, actionSelect, paramsContainer, paramsInputContainer);
       });
 
       actionSelect.addEventListener('change', function() {
-        resetParams(paramSelection, paramsContainer, paramsInputContainer);
+        resetParams(paramsContainer, paramsInputContainer);
       });
     }
 
     // Handle actions upon change api group
-    function handleGroupChange(groupSelect, actionSelect, paramSelection, paramsContainer, paramsInputContainer) {
+    function handleGroupChange(groupSelect, actionSelect, paramsContainer, paramsInputContainer) {
       const groupId = groupSelect.value;
 
       // Reset fields params options field
       actionSelect.innerHTML = '';
-      resetParams(paramSelection, paramsContainer, paramsInputContainer);
+      resetParams(paramsContainer, paramsInputContainer);
 
       // Fetch the apis of the newly choosen group
       if (groupId) {
@@ -99,14 +96,13 @@
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            console.error('Error:', data.error);
+            setAlert(data.error)
           } else {
-            console.log("This the damn data:", data)
             populateActionSelect(actionSelect, data.apis);
           }
         })
         .catch((error) => {
-          console.error('Error fetching APIs:', error);
+          setAlert('Error fetching APIs: '+ error);
         });
     }
   
@@ -120,9 +116,8 @@
       });
     }
 
-    function resetParams(paramSelection, paramsContainer, paramsInputContainer) {
-      paramSelection.innerHTML = '';
-      paramsContainer.style.display = 'none';
+    function resetParams(paramsContainer, paramsInputContainer) {
+      paramsContainer.innerHTML = '';
       paramsInputContainer.innerHTML = '';
     }
 
@@ -148,7 +143,9 @@
       })
       .then(response => response.json())
       .then(data => {
+        
         console.log("Data whole object: "+JSON.stringify(data, null, 2))
+
         if (data.error) { // If Error field is in the reponse -> error 
           setAlert('❌ Error: ' + JSON.stringify(data.error, null, 2))
         } else if (data.params) {
@@ -158,32 +155,38 @@
               let params_selection_type = params_selection_types[0] 
               
               if (params_selection_type == 'choose'){ // Case User only needs to choose 1 param from existing ones
-                handleChooseParamsResponse(data); 
+                handleChooseParamsResponse(data)
               } else if(params_selection_type == 'input') { // case User only needs to input params 
                 handleInputParamsResponse(data)
               } 
-            }
-      
-          // if (data.payload.action == 'setTouchAFPosition'){
-          //   setManualParamInput(data.params, (inputValues) => {
-          //     data.payload.payload["params"] = inputValues
-          //     sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
-          //   });
-          // } else {
-          //   handleChooseParamsResponse(data);
-          // }
+            } else { 
+              // Setting white balance needs params selection an params input but the input is occational and only 
+              // required if a certain param is selected -> query the params to be selected firstly
+              console.log("Reached more than 1 param types.")
+              
+              if (data.payload.action == "setWhiteBalance"){
+                setParamSelection(data.params.params.slice(0,2), (selectedParams) => {
+
+                console.log("Selected params: "+ selectedParams)
+
+                });
+              }
+            } handleMixedParamsResponse(data)
         } else {
           sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
         }
       })
       .catch((error) => {
-        console.error('Error:', error);
+        setAlert('Error: '+error);
       });
+    }
+
+    function handleMixedParamsResponse(data){ 
+
     }
 
     function handleInputParamsResponse(data){
       input_configs = data.params.params
-      console.log("Input configs: "+data.params.params)
       setManualParamInput(input_configs, (inputValues) => {
         data.payload.payload["params"] = inputValues
         sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
@@ -215,7 +218,6 @@
         const inputValues = [];
         for (let i = 1; i <= numberOfInputs; i++) {
           const inputElement = document.getElementById(`input${i}`);
-          console.log(inputElement)
           
           if (inputElement) {
             const inputValueStr = inputElement.value;
@@ -232,7 +234,6 @@
             setAlert("Please fill in the "+i+". input first.")
           }
         }
-        console.log(inputValues)
         callback(inputValues);
         paramsInputContainer.innerHTML = '';
       });
@@ -240,43 +241,73 @@
 
       paramsInputContainer.appendChild(submitButton);
     }
+
+    function handleChooseParamsResponse(data){
+      setParamSelection(data.params.params, (selectedParams) => {
+        data.payload.payload["params"] = selectedParams
+        sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+      });
+    }
     
     // List the params received from Django server as options and handle the request sending to the local server.
-    function handleChooseParamsResponse(data) {
-      const { action_list_url, payload: payloadData, action } = data.payload;
+    function setParamSelection(choose_sets, callback) {
+      console.log("Choose sets: "+choose_sets)
+
       const paramsContainer = document.getElementById('paramsContainer');
-      const paramSelection = document.getElementById('paramsSelect');
       const confirmButton = document.getElementById('paramsConfirmButton');
+      const selectElements = [];
 
       // Populate the select options
-      paramSelection.innerHTML = '';
+      paramsContainer.innerHTML = '';
+      
+      choose_sets.forEach((choose_set, index) => {
+        const select = document.createElement('select');
+        select.id = `chooseSetSelect${index}`;
+        select.name = `chooseSetSelect${index}`;
 
-      choose_sets = data.params.params 
-
-      for (let i = 0; i < choose_sets.length; i++){
-        choose_sets[i].forEach(param => {
-          const option = document.createElement('option');
-          option.value = JSON.stringify(param);
-          option.textContent = JSON.stringify(param);
-          paramSelection.appendChild(option);
+        choose_set.forEach(param => {
+            const option = document.createElement('option');
+            option.value = JSON.stringify(param);
+            option.textContent = JSON.stringify(param);
+            select.appendChild(option);
         });
-      }
+
+        paramsContainer.appendChild(select);
+        selectElements.push(select);
+      });
 
       // Unhide the container
       paramsContainer.style.display = 'block';
 
-      confirmButton.onclick = function() {
-        const selectedParam = paramSelection.value;
-        payloadData['params'] = selectedParam;
+      const submitButton = document.createElement('button');
+      submitButton.textContent = 'Submit';
+      submitButton.type = 'button';
 
-        sendRequestToLocalServer(action_list_url, payloadData, action);
-        paramsContainer.style.display = 'none';
-        paramSelection.innerHTML = '';
-      };
+      submitButton.addEventListener('click', function () {
+        const selectedParams = [];
+          for (let i = 0; i < selectElements.length; i++) {
+              const select = selectElements[i];
+              if (select) {
+                const selectedValue = select.value;
+                selectedParams.push(selectedValue);
+              } else {
+                  setAlert(`Dropdown ${i + 1} is missing.`);
+                  return;
+              }
+          }
+          callback(selectedParams);
+
+          paramsContainer.style.display = 'none';
+          paramsContainer.innerHTML = '';
+      });
+
+      paramsContainer.appendChild(submitButton);
     }
 
     // Send request to local server
     function sendRequestToLocalServer(actionListUrl, payload, action) {
+      console.log("sendRequestToLocalServer triggered. "+actionListUrl+payload+action)
+
       fetch('http://localhost:8001/camera_control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -289,14 +320,13 @@
       .then(response => response.json())
       .then(data => handleLocalServerResponse(data, action, payload))
       .catch((error) => {
-        console.error('Error communicating with local server:', error);
+        setAlert('Error communicating with local server: '+ error);
       });
     }
     
     // Handle response from local server
     function handleLocalServerResponse(data, action, payload) {
       let response = ''
-      console.log('Camera Response:', data);
 
       if (data.error) {
         response = '❌ Error: \n' + JSON.stringify(data.error, null, 2);

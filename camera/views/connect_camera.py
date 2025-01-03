@@ -1,18 +1,11 @@
 from django.shortcuts import render
-from django.http import JsonResponse
-import socket
-import requests
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render
-from django.conf import settings
 from django.views import View
 from typing import Optional
 import xml.etree.ElementTree as ET
 from camera.models import CameraInfo
-import time
 import logging
 from camera.models import CameraModel
-import json
 from camera.enums import CameraModes
 
 

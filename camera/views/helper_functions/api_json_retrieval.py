@@ -1,6 +1,6 @@
 import json
 from camera.models import CameraInfo, API
-from typing import Tuple
+from typing import Any, Tuple
 
 
 def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list | str]:
@@ -34,12 +34,28 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
         param_options = params["params"]
 
         if len(param_options) == 1 and len(param_options[0]) == 1:
-            json_object["params"] = param_options[0][0]
+            json_object["params"] = [_conver_param_to_correct_type(param_options[0][0])]
         else:
             params_dict = {"type": params["type"], "params": param_options}
             return payload, params_dict
     else:
-        json_object["params"] = ""
+        json_object["params"] = []
 
     # Return the action list URL and the constructed JSON payload
     return payload, None
+
+
+def _conver_param_to_correct_type(param: str) -> Any:
+    if param.lower == "true":
+        return True
+
+    if param.lower == "false":
+        return False
+
+    if isinstance(param, int):
+        return int(param)
+
+    if isinstance(param, float):
+        return float(param)
+
+    return param

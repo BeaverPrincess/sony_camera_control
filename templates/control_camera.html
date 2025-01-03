@@ -165,10 +165,29 @@
               console.log("Reached more than 1 param types.")
               
               if (data.payload.action == "setWhiteBalance"){
-                setParamSelection(data.params.params.slice(0,2), (selectedParams) => {
+                setParamSelection(data.params.params.slice(0,1), (selectedParams) => {
 
-                console.log("Selected params: "+ selectedParams)
+                  console.log("selectedParams:", selectedParams);
 
+                  if (selectedParams.includes("Color Temperature")){
+                    const input_config = data.params.params.slice(1,2) 
+                    setManualParamInput(input_config, (inputValue) => {
+                      
+                      console.log("Input params: ", inputValue)
+                      console.log("Type of input params: ", typeof(inputValue))
+                      
+                      const allParams = [...selectedParams, true, ...inputValue];
+
+                      console.log("All params: "+ allParams)
+
+                      data.payload.payload["params"] = allParams
+                      sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+                    });
+                  } else {
+                    const allParams = [...selectedParams, true, 3000]
+                    data.payload.payload["params"] = allParams
+                    sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+                  }
                 });
               }
             } handleMixedParamsResponse(data)
@@ -216,7 +235,7 @@
     // Fetching inputs and round them to the first decimal if needed
       submitButton.addEventListener('click', function () {
         const inputValues = [];
-        for (let i = 1; i <= numberOfInputs; i++) {
+        for (let i = 0; i < numberOfInputs; i++) {
           const inputElement = document.getElementById(`input${i}`);
           
           if (inputElement) {
@@ -288,7 +307,7 @@
           for (let i = 0; i < selectElements.length; i++) {
               const select = selectElements[i];
               if (select) {
-                const selectedValue = select.value;
+                const selectedValue = JSON.parse(select.value);
                 selectedParams.push(selectedValue);
               } else {
                   setAlert(`Dropdown ${i + 1} is missing.`);

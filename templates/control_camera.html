@@ -172,16 +172,11 @@
                   if (selectedParams.includes("Color Temperature")){
                     const input_config = data.params.params.slice(1,2) 
                     setManualParamInput(input_config, (inputValue) => {
-                      
-                      console.log("Input params: ", inputValue)
-                      console.log("Type of input params: ", typeof(inputValue))
-                      
-                      const allParams = [...selectedParams, true, ...inputValue];
-
-                      console.log("All params: "+ allParams)
-
-                      data.payload.payload["params"] = allParams
-                      sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+                      if (inputValue.length > 0){
+                        const allParams = [...selectedParams, true, ...inputValue];
+                        data.payload.payload["params"] = allParams
+                        sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+                      }
                     });
                   } else {
                     const allParams = [...selectedParams, true, 3000]
@@ -207,15 +202,17 @@
     function handleInputParamsResponse(data){
       input_configs = data.params.params
       setManualParamInput(input_configs, (inputValues) => {
-        data.payload.payload["params"] = inputValues
-        sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+        if (inputValues.length > 0){
+          data.payload.payload["params"] = inputValues
+          sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
+        }
       });
     }
 
     function setManualParamInput(input_configs, callback) {
       const paramsInputContainer = document.getElementById('paramsInputContainer');
       paramsInputContainer.innerHTML = '';
-      const numberOfInputs = input_configs.length
+      const numberOfInputs = input_configs.length;
 
       for (let i = 0; i < numberOfInputs; i++) {
         const paramInput = document.createElement('input');
@@ -234,20 +231,24 @@
 
     // Fetching inputs and round them to the first decimal if needed
       submitButton.addEventListener('click', function () {
-        const inputValues = [];
+        let inputValues = [];
         for (let i = 0; i < numberOfInputs; i++) {
           const inputElement = document.getElementById(`input${i}`);
+          const step = input_configs[i][2];
+          const lowerLimit = input_configs[i][0];
+          const upperLimit = input_configs[i][1];
           
           if (inputElement) {
             const inputValueStr = inputElement.value;
             let inputValue = parseFloat(inputValueStr);
 
-            if (inputValueStr.includes('.')) {
-                const decimalPart = inputValueStr.split('.')[1];
-                if (decimalPart.length > 1) {
-                    inputValue = Math.round(inputValue * 10) / 10;
-                }
+            if (lowerLimit > inputValue || inputValue > upperLimit){
+              setAlert(""+(i+1)+". input out of bound ("+lowerLimit+" .. "+upperLimit+" ).");
+              inputValues = []
+              break;  
             }
+
+            inputValue = roundInputAccordingToConfig(lowerLimit, step, inputValue)
             inputValues.push(inputValue);
           }else{
             setAlert("Please fill in the "+i+". input first.")
@@ -256,9 +257,13 @@
         callback(inputValues);
         paramsInputContainer.innerHTML = '';
       });
-      
 
       paramsInputContainer.appendChild(submitButton);
+    }
+
+    function roundInputAccordingToConfig(lowerLimit, step, inputValue){
+      const roundedStepsAboveLower = Math.round((inputValue-lowerLimit)/step)
+      return lowerLimit + (roundedStepsAboveLower * step)
     }
 
     function handleChooseParamsResponse(data){

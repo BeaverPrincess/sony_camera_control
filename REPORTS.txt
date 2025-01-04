@@ -191,14 +191,27 @@ ________________________________________________________________________________
 32. 03.01.2025:
      - Bugs vom neuen System wurden gefunden.
      - Bugs beim Zooming APIs wurden gefunden und behoben, die zwei seperaten APIs von Zoom wurden zu einem einzigen vereinfacht.
-     - Logic für WhiteBalance APIs wurde implementiert.
+     - Logik für WhiteBalance APIs wurde implementiert.
      - Code Teile im Local Service, die redundant geworden wegen dem neuen Param-System wurde gelöscht, weitere Anpassungen admin 
      Param-System.
      - Sonderfall: String-Konvertierungslogik für setIsoSpeedRate Api.
      - Program Shift Api wurde in DB hinzugefügt. 
 
-     TO-DO:    - Test/Implement program shift params then adjust in DB 
-               - Repopulate params for F number and Shutter speed.
-               - Get the rest APis in DB, new System should now be sufficent.
-               - Create a function to handle general mix params requirements 
-               (optional since no API currently used it but might be usefull if the project ever to extend)
+_______________________________________________________________________________________________________________________________
+33. 04.01.2025:
+     - Program Shift Apis wurden implementiert.
+     - Flash mode, Server information und Postview image size Api-Gruppen wurden zur DB hinzugefügt und implementiert.
+     - Params von der Einstellungen der ISO Speed und F Number wurden getestet und in DB angepasst. 
+     - Alle APIs des Sony A5000 Cameras sind nun vollständigt.
+     - Eine Funktion für das manuelle Eingeben der Params wurde addiert, um zu sichern dass die Eingaben innerhalb des 
+     vordefinierten Bereichs in der Konfiguration liegt, die Eingaben werden auch entsprechend dem Schritt in der Konfig 
+     gerundet. 
+
+     TO-DO:    - Create a function to handle general mix params requirements (optional since no API currently used it but might 
+               be usefull if the project ever to extend)
+               - FE Styling (Bootstrap?)
+               - Automate ip fetching of the machine when first connect to the camera.
+     
+###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  
+     Thesis konzentrieren. Natürlich werde ich weiterhin gelegentlich zur Codierung zurückkehren, um das Frontend zu stylen, die 
+     Benutzererfahrung zu verbessern und kleine Verbesserungen am Code vorzunehmen.

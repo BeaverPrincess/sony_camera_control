@@ -207,10 +207,14 @@ ________________________________________________________________________________
      vordefinierten Bereichs in der Konfiguration liegt, die Eingaben werden auch entsprechend dem Schritt in der Konfig 
      gerundet. 
 
+_______________________________________________________________________________________________________________________________
+34. 06.01.2025:
+     - IP-Fetching-Prozess für die SSDP-M-Search wurde automatisiert.
+     - Konsultiert die Dokumenten und Hinweise bzw. auch die Muster-Diplomarbeit auf Moodle.
+
      TO-DO:    - Create a function to handle general mix params requirements (optional since no API currently used it but might 
                be usefull if the project ever to extend)
                - FE Styling (Bootstrap?)
-               - Automate ip fetching of the machine when first connect to the camera.
      
 ###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  
      Thesis konzentrieren. Natürlich werde ich weiterhin gelegentlich zur Codierung zurückkehren, um das Frontend zu stylen, die 

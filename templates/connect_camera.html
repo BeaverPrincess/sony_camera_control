@@ -22,12 +22,6 @@
             <input type="hidden" name="mode" value="{{ mode }}">
             <button type="submit">Start controlling mode</button>
         </form>
-
-        <form method="GET" action="{% url 'sandbox_api_selection' %}">
-            <input type="hidden" name="uuid" value="{{ uuid }}">
-            <input type="hidden" name="mode" value="{{ mode }}">
-            <button type="submit">Start sandbox mode</button>
-        </form>
     {% endif %}
 
     <p id="csrf-token-display"></p>

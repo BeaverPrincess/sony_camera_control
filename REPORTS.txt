@@ -212,9 +212,14 @@ ________________________________________________________________________________
      - IP-Fetching-Prozess für die SSDP-M-Search wurde automatisiert.
      - Konsultiert die Dokumenten und Hinweise bzw. auch die Muster-Diplomarbeit auf Moodle.
 
-     TO-DO:    - Create a function to handle general mix params requirements (optional since no API currently used it but might 
-               be usefull if the project ever to extend)
-               - FE Styling (Bootstrap?)
+_______________________________________________________________________________________________________________________________
+35. 07.01.2025:
+     - Funktion für Fälle, wo beide Parameterwahl und manuelle Parametereingabe erforderlich sind.
+     - Einige Kommentare wurden addiert und bearbeitet.
+     - Redundant Codes wurden gelöscht.
+
+
+     TO-DO:    - FE Styling (Bootstrap?)
      
 ###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  
      Thesis konzentrieren. Natürlich werde ich weiterhin gelegentlich zur Codierung zurückkehren, um das Frontend zu stylen, die 

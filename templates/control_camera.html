@@ -121,7 +121,7 @@
       paramsInputContainer.innerHTML = '';
     }
 
-    // Api-Form submission logic
+    // Api-Form submission logic, when the user submits a choosen API
     function initFormSubmissionListener() {
       const form = document.getElementById('cameraControlForm');
       form.addEventListener('submit', handleFormSubmission);
@@ -143,31 +143,24 @@
       })
       .then(response => response.json())
       .then(data => {
-        
-        console.log("Data whole object: "+JSON.stringify(data, null, 2))
 
-        if (data.error) { // If Error field is in the reponse -> error 
+        if (data.error) { // If Error field is in the response -> error 
           setAlert('❌ Error: ' + JSON.stringify(data.error, null, 2))
-        } else if (data.params) {
+        } else if (data.params) { // If "params" parameter is in response -> User input needed
             let params_selection_types = data.params.type
-            
-            if (params_selection_types.length == 1){ 
+            if (params_selection_types.length == 1){ // if the type is only array of 1 -> user only need to either choose from a chosen set of params or input them manually  
               let params_selection_type = params_selection_types[0] 
               
-              if (params_selection_type == 'choose'){ // Case User only needs to choose 1 param from existing ones
-                handleChooseParamsResponse(data)
-              } else if(params_selection_type == 'input') { // case User only needs to input params 
+              if (params_selection_type == 'choose'){ // even if more than 1 params are required, as long as the user only needs to choose them, the type array should still have only 1 element "choose"
+                handleChooseParamsResponse(data) 
+              } else if(params_selection_type == 'input') { // Same as to when only choosing params is required
                 handleInputParamsResponse(data)
-              } 
-            } else { 
-              // Setting white balance needs params selection an params input but the input is occational and only 
-              // required if a certain param is selected -> query the params to be selected firstly
-              console.log("Reached more than 1 param types.")
-              
+              }
+            } else {
+              // Type array is more than 1 then a combi of inputs are needed
+              // Setting white balance needs params selection and manual params input but only a certain param is selected -> query the params to be selected firstly
               if (data.payload.action == "setWhiteBalance"){
                 setParamSelection(data.params.params.slice(0,1), (selectedParams) => {
-
-                  console.log("selectedParams:", selectedParams);
 
                   if (selectedParams.includes("Color Temperature")){
                     const input_config = data.params.params.slice(1,2) 
@@ -184,8 +177,10 @@
                     sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
                   }
                 });
+              } else { // Generic cases where a combi of choosing and manually inputting params are needed  
+                handleMixedParamsResponse(data);
               }
-            } handleMixedParamsResponse(data)
+            } 
         } else {
           sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
         }
@@ -195,10 +190,34 @@
       });
     }
 
+    // Function handling cases where user needs to both choose params and input params
+    // In this case each set of params choices or input config should have a corresponding type, 
+    // their orders also has to match to keep track of what to do with each set of data
+    // Ex: type ["choose","choose","type"] -> params [[choosen set 1],[choosen set 2],[input config 1]]
     function handleMixedParamsResponse(data){ 
+      types = data.params.types;
+      allParamSets = data.params.params;
+      paramsToSend = [];
 
+      for (let i = 0; i<types.length; i++){
+        if (types[i] == "choose"){
+          setParamSelection([all_param_sets[i]], (selectedParam) => {
+            paramsToSend.push(selectedParam)
+          });
+        }else if(types[i] == "input"){
+          setManualParamInput([all_param_sets[i]], (inputParam) => {
+            paramsToSend.push(inputParam)
+          });
+        }else{
+          setAlert('Error: Unhandle param action.');
+        }
+      }
+
+      data.payload.payload["params"] = paramsToSend
+      sendRequestToLocalServer(data.payload.action_list_url, data.payload.payload, data.payload.action);
     }
 
+    // Handler for case where user only need to input parameters
     function handleInputParamsResponse(data){
       input_configs = data.params.params
       setManualParamInput(input_configs, (inputValues) => {
@@ -210,6 +229,8 @@
     }
 
     function setManualParamInput(input_configs, callback) {
+      // Input config is an array of arrays of 3 ints, first is the min value, second is the max and the third is the step.
+      // Each array inside Input config represent an input field to be generate, the settings of this input field is set accordingly to its config array
       const paramsInputContainer = document.getElementById('paramsInputContainer');
       paramsInputContainer.innerHTML = '';
       const numberOfInputs = input_configs.length;
@@ -228,8 +249,7 @@
       const submitButton = document.createElement('button');
       submitButton.textContent = 'Submit';
       submitButton.type = 'button';
-
-    // Fetching inputs and round them to the first decimal if needed
+    
       submitButton.addEventListener('click', function () {
         let inputValues = [];
         for (let i = 0; i < numberOfInputs; i++) {
@@ -237,7 +257,9 @@
           const step = input_configs[i][2];
           const lowerLimit = input_configs[i][0];
           const upperLimit = input_configs[i][1];
-          
+
+          // Logic to check if the user input is inside the required range 
+          // If so do a round (snap) to the closest valid value according to the step and min value
           if (inputElement) {
             const inputValueStr = inputElement.value;
             let inputValue = parseFloat(inputValueStr);
@@ -266,6 +288,7 @@
       return lowerLimit + (roundedStepsAboveLower * step)
     }
 
+    // Handler for case where user only need to input parameters
     function handleChooseParamsResponse(data){
       setParamSelection(data.params.params, (selectedParams) => {
         data.payload.payload["params"] = selectedParams
@@ -273,8 +296,9 @@
       });
     }
     
-    // List the params received from Django server as options and handle the request sending to the local server.
     function setParamSelection(choose_sets, callback) {
+      // Choose sets "is" an array of arrays, where each array is a set of available parameters, from which the user can choose
+      // A Select Field will get generated for each set of parameters 
       console.log("Choose sets: "+choose_sets)
 
       const paramsContainer = document.getElementById('paramsContainer');

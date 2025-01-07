@@ -2,19 +2,6 @@ from django import forms
 from camera.models import API, APIGroup
 
 
-class SandboxApiSelectionForm(forms.Form):
-    """
-    Form to choose api from all.
-    """
-
-    api_name = forms.ModelChoiceField(
-        queryset=API.objects.all(),
-        label="Select an API",
-        empty_label="Choose an API",
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-
-
 class CameraControlForm(forms.Form):
     """
     Form to choose api by navigating through the api groups.

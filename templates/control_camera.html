@@ -31,12 +31,8 @@
     <input type="hidden" id="id_isRecord" name="isRecord" value="0">
     <input type="hidden" id="id_isStillShooting" name="isStillShooting" value="0">
 
-    <p>
-        {{ form.group.label_tag }} {{ form.group }}
-    </p>
-    <p>
-        {{ form.action.label_tag }} {{ form.action }}
-    </p>
+    {{ form.group.label_tag }} {{ form.group }}
+    {{ form.action.label_tag }} {{ form.action }}
     <button type="submit">Submit</button>
   </form>
 

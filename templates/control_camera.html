@@ -1,22 +1,6 @@
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sony Camera Control</title>
-  <style>
-    #liveViewContainer {
-      display: none; /* Hidden by default */
-      margin-top: 20px;
-    }
-    #liveViewImage {
-      width: 700px; 
-      height: 500px; 
-      border: 1px solid #ccc;
-    }
-  </style>
-</head>
+{% extends 'base.html' %}
 
-<body>
+{% block left_side %}
   <h1>Camera Control</h1>
 
   {% if alert %}
@@ -43,13 +27,19 @@
 
   <div id="paramsInputContainer"></div>
 
-  <div id="liveViewContainer">
+  <div id="liveViewContainer" style="display: none; margin-top: 20px;">
     <h2>Live View</h2>
-    <img id="liveViewImage" src="" alt="Live View Stream">
+    <img id="liveViewImage" src="" alt="Live View Stream" style="width: 700px; height: 500px; border: 1px solid #ccc;">
   </div>
 
   <h3 id="localServerResponse" style="display: none;"></h3>
+{% endblock %}
 
+{% block right_side %}
+  <h1>The 2nd right side</h1>
+{% endblock %}
+
+{% block js_scripts %}
   <script>
     function init() {
       initGroupSelectionListener();
@@ -414,5 +404,4 @@
     // Init the listeners when the page loads
     init();
   </script>
-</body>
-</html>
+{% endblock %}

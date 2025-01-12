@@ -223,6 +223,11 @@ ________________________________________________________________________________
      - IP-Fetching Funktion wurde angepasst. Sie ruft nun alle gefundenen IPv4-Adressen ab und testet jede davon.
      - Bootstrap wurde für das Styling ausprobiert.
 
+_______________________________________________________________________________________________________________________________
+37. 11.01.2025:
+     - Einbisschen Styling wurde addiert.
+     - Django Template Inheritance wurde für Styling implementiert. 
+
      TO-DO:    - FE Styling (Bootstrap?)
      
 ###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  

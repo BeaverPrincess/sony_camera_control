@@ -1,26 +1,31 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    Sony Camera control
+{% endblock %}
+
 {% block left_side %}
-    <h1>Connect to your Sony Camera</h1>
-
-    <button id="discover-button">Start connnecting</button>
-
-    {% if alert %}
-        <h1>{{ alert }}</h1>
-    {% endif %}
+    <figcaption class="blockquote-footer">Supported Models: A5000</figcaption>
+    <button id="discover-button" class="btn btn-primary m-3 shadow-sm {% if uuid %}d-none{% endif %}">Start connnecting</button>
 
     {% if uuid %}
         <form method="GET" action="{% url 'control_camera' %}">
             {% csrf_token %}
             <input type="hidden" name="uuid" value="{{ uuid }}">
             <input type="hidden" name="mode" value="{{ mode }}">
-            <button type="submit">Start controlling mode</button>
+            <button type="submit" class="btn btn-success m-3 shadow-sm">Start controlling mode</button>
         </form>
     {% endif %}
 {% endblock %}
 
 {% block right_side %}
     <h1>The right side</h1>
+{% endblock %}
+
+{% block response_messages %}
+    {% if alert %}
+        <h1>{{ alert }}</h1>
+    {% endif %}
 {% endblock %}
 
 {% block js_scripts %}

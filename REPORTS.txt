@@ -228,6 +228,10 @@ ________________________________________________________________________________
      - Einbisschen Styling wurde addiert.
      - Django Template Inheritance wurde für Styling implementiert. 
 
+_______________________________________________________________________________________________________________________________
+38. 12.01.2025:
+     - Viel mehr Styling wurden addiert.
+
      TO-DO:    - FE Styling (Bootstrap?)
      
 ###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  

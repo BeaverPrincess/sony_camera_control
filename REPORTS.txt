@@ -232,6 +232,10 @@ ________________________________________________________________________________
 38. 12.01.2025:
      - Viel mehr Styling wurden addiert.
 
+_______________________________________________________________________________________________________________________________
+39. 13.01.2025:
+     - Mehr Styling, Blur Toggle für Background wenn LiveView.     
+
      TO-DO:    - FE Styling (Bootstrap?)
      
 ###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  

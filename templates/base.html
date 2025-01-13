@@ -11,6 +11,23 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
 
+    <style>
+      #mainContainerRight {
+        position: relative;
+        overflow: hidden;
+      }
+
+      #mainContainerRight::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: url("{% static 'camera/images/camera_bg.png' %}") center/cover no-repeat;
+        filter: none;
+        z-index: 0;
+        transition: filter 0.3s ease-in-out;
+      }
+    </style>
+
     {% block extra_head %}
     {% endblock extra_head %}
 </head>
@@ -30,14 +47,9 @@
                   {% endblock response_messages %}
                 </div>
             </div>
-            <div id="mainContainerRight" class="w-50 vh-100 align-items-center justify-content-center"
-                 style="background-image: url('{% static "camera/images/camera_bg.png" %}'); 
-                 background-size: cover; background-position: center; 
-                 {% block bg_img_filter %}
-                 {% endblock bg_img_filter %}">
-                
-                {% block right_side %}
-                {% endblock right_side %}
+            <div id="mainContainerRight" class="w-50 vh-100 d-flex align-items-center justify-content-center">
+                  {% block right_side %}
+                  {% endblock right_side %}
             </div>
         </div>
     </div>

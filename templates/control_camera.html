@@ -48,7 +48,7 @@
   <div id="paramsContainer" class="p-3" style="display: none;"></div>
 
   <!-- Container for params input -->
-  <div id="paramsInputContainer" class="p-3" style="display: none;"></div>
+  <div id="paramsInputContainer" style="display: none;"></div>
 {% endblock %}
 
 {% block response_messages %}
@@ -130,6 +130,16 @@
       paramsInputContainer.style.display = "none";
       paramsContainer.innerHTML = '';
       paramsInputContainer.innerHTML = '';
+
+      const classesToRemove = ["p-3","d-flex","flex-column","align-items-center"];
+      for (let i = 0; i < classesToRemove.length; i++) {
+        paramsInputContainer.classList.remove(classesToRemove[i]);
+        paramsContainer.classList.remove(classesToRemove[i]);
+      }
+
+      const responseDiv = document.getElementById("responseDiv");
+      responseDiv.classList.remove('d-block');
+      responseDiv.classList.add('d-none');
     }
 
     // Api-Form submission logic, when the user submits a choosen API
@@ -246,16 +256,32 @@
       paramsInputContainer.innerHTML = '';
       const numberOfInputs = input_configs.length;
 
+      const classesToAdd = ["p-3","d-flex","flex-column","align-items-center"];
+      for (let i = 0; i < classesToAdd.length; i++) {
+        paramsInputContainer.classList.add(classesToAdd[i]);
+      }
+
       for (let i = 0; i < numberOfInputs; i++) {
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'w-auto'
+
+        const label = document.createElement('label');
+        label.htmlFor = `input${i}`;
+        label.textContent = `Input ${i + 1} (Min: ${input_configs[i][0]}, Max: ${input_configs[i][1]}, Step: ${input_configs[i][2]}): `;
+
         const paramInput = document.createElement('input');
         paramInput.type = 'number';
         paramInput.id = `input${i}`;
         paramInput.step = input_configs[i][2];
         paramInput.min = input_configs[i][0];
         paramInput.max = input_configs[i][1];
-        paramInput.className = "me-3"
+        paramInput.className = "ms-2"
+        paramInput.classList.add('mb-2')
+        paramInput.title = "(Min:"+input_configs[i][0]+" Max:"+input_configs[i][1]+" Step:"+input_configs[i][2]+" )"
 
-        paramsInputContainer.appendChild(paramInput);
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(paramInput);
+        paramsInputContainer.appendChild(inputGroup);
       }
 
       const submitButton = document.createElement('button');
@@ -314,19 +340,29 @@
     function setParamSelection(choose_sets, callback) {
       // Choose sets "is" an array of arrays, where each array is a set of available parameters, from which the user can choose
       // A Select Field will get generated for each set of parameters 
-      console.log("Choose sets: "+choose_sets)
-
       const paramsContainer = document.getElementById('paramsContainer');
       const selectElements = [];
-
-      // Populate the select options
       paramsContainer.innerHTML = '';
       
+      const classesToAdd = ["p-3","d-flex","flex-column","align-items-center"];
+      for (let i = 0; i < classesToAdd.length; i++) {
+        paramsContainer.classList.add(classesToAdd[i]);
+      }
+      
+      // Populate the select options
       choose_sets.forEach((choose_set, index) => {
+        const selectionGroup = document.createElement('div');
+        selectionGroup.className = 'w-auto'
+
+        const label = document.createElement('label');
+        label.htmlFor = `chooseSetSelect${index}`;
+        label.textContent = `Select parameter ${index + 1}: `;
+
         const select = document.createElement('select');
         select.id = `chooseSetSelect${index}`;
         select.name = `chooseSetSelect${index}`;
-        select.className = "me-3"
+        select.className = "ms-2"
+        select.classList.add("mb-2")
 
         choose_set.forEach(param => {
             const option = document.createElement('option');
@@ -335,7 +371,9 @@
             select.appendChild(option);
         });
 
-        paramsContainer.appendChild(select);
+        selectionGroup.appendChild(label);
+        selectionGroup.appendChild(select);
+        paramsContainer.appendChild(selectionGroup);
         selectElements.push(select);
       });
 

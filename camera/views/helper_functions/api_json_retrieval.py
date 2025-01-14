@@ -46,10 +46,10 @@ def construct_api_payload(uuid: str, api: API) -> Tuple[None | dict, None | list
 
 
 def _conver_param_to_correct_type(param: str) -> Any:
-    if param.lower == "true":
+    if param.lower() == "true":
         return True
 
-    if param.lower == "false":
+    if param.lower() == "false":
         return False
 
     if isinstance(param, int):

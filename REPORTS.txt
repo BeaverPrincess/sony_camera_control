@@ -269,6 +269,11 @@ ________________________________________________________________________________
 47. 21.01.2025:
      - Arbeiten am eigentlichen Verfassen der Bachelorarbeit
 
+_______________________________________________________________________________________________________________________________
+47. 22.01.2025:
+     - Arbeiten am eigentlichen Verfassen der Bachelorarbeit
+     - Kleine Anpassung bei der CORS Preflight Behandlung
+
 
      
 ###  Anmerkung: - Die Hauptfunktionen des Projekts sind jetzt abgeschlossen. Ab jetzt werde ich mich mehr auf das Schreiben der  

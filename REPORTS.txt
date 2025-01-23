@@ -270,9 +270,14 @@ ________________________________________________________________________________
      - Arbeiten am eigentlichen Verfassen der Bachelorarbeit
 
 _______________________________________________________________________________________________________________________________
-47. 22.01.2025:
+48. 22.01.2025:
      - Arbeiten am eigentlichen Verfassen der Bachelorarbeit
      - Kleine Anpassung bei der CORS Preflight Behandlung
+
+___________________________________________________________________
+49. 23.01.2025:
+     - Arbeiten am eigentlichen Verfassen der Bachelorarbeit
+     - Venv und requirements.txt für Proxy Server hinzugefügt
 
 
      

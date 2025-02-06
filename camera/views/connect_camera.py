@@ -7,6 +7,9 @@ from camera.models import CameraInfo
 import logging
 from camera.models import CameraModel
 from camera.enums import CameraModes
+import urllib.parse
+# from django.views.decorators.csrf import csrf_exempt
+# from django.utils.decorators import method_decorator
 
 
 class CameraConnectView(View):
@@ -14,6 +17,7 @@ class CameraConnectView(View):
         return render(request, "connect_camera.html")
 
 
+# @method_decorator(csrf_exempt, name='dispatch')
 class FetchDeviceDescriptionView(View):
     def _parse_device_description(
         self, xml_content: bytes
@@ -98,6 +102,7 @@ class FetchDeviceDescriptionView(View):
                     {"alert": "No device description found in request."},
                 )
 
+            device_description = urllib.parse.unquote(device_description)
             # Extract model name, uuid and action list url from device description
             camera_data, parse_error = self._parse_device_description(
                 device_description

@@ -65,7 +65,7 @@
                 const deviceDescriptionInput = document.createElement('input');
                 deviceDescriptionInput.type = 'hidden';
                 deviceDescriptionInput.name = 'device_description';
-                deviceDescriptionInput.value = data.device_description;
+                deviceDescriptionInput.value = encodeURIComponent(data.device_description);
                 form.appendChild(deviceDescriptionInput);
 
                 // Append form to body and submit
